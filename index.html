@@ -2,8 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<meta name="theme-color" content="#0b2a4a">
+<link rel="apple-touch-icon" href="https://alequielectric.store/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -669,9 +668,9 @@
 <section style="max-width:1100px;margin:26px auto;padding:0 14px">
 <div style="background:#0b2a4a;color:#fff;border-radius:14px;padding:18px;text-align:center">
 <div style="font-weight:800;font-size:17px" data-es="Comparte nuestra tienda con tus contactos" data-en="Share our store with your contacts">Comparte nuestra tienda con tus contactos</div>
-<div style="margin:10px 0;font-size:15px"><a href="https://liltmark.github.io/alequi-electric/" style="color:#7dd3fc;font-weight:700;text-decoration:none">liltmark.github.io/alequi-electric</a></div>
-<a href="https://wa.me/?text=Te%20comparto%20la%20tienda%20Ricardo%20Fern%C3%A1ndez%20Electric%3A%20https%3A%2F%2Fliltmark.github.io%2Falequi-electric%2F" style="display:inline-block;background:#22c55e;color:#fff;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none" data-es="Compartir por WhatsApp" data-en="Share on WhatsApp">Compartir por WhatsApp</a>
-<div style="margin-top:10px"><a href="https://liltmark.github.io/alequi-electric/AlequiTienda.apk" style="display:inline-block;background:#f97316;color:#fff;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none" data-es="📱 Descarga nuestra app" data-en="📱 Download our app">📱 Descarga nuestra app</a></div>
+<div style="margin:10px 0;font-size:15px"><a href="https://alequielectric.store/" style="color:#7dd3fc;font-weight:700;text-decoration:none">alequielectric.store</a></div>
+<a href="https://wa.me/?text=Te%20comparto%20la%20tienda%20Ricardo%20Fern%C3%A1ndez%20Electric%3A%20https%3A%2F%2Falequielectric.store%2F" style="display:inline-block;background:#22c55e;color:#fff;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none" data-es="Compartir por WhatsApp" data-en="Share on WhatsApp">Compartir por WhatsApp</a>
+<div style="margin-top:10px"><a href="https://alequielectric.store/AlequiTienda.apk" style="display:inline-block;background:#f97316;color:#fff;font-weight:700;padding:11px 20px;border-radius:10px;text-decoration:none" data-es="📱 Descarga nuestra app" data-en="📱 Download our app">📱 Descarga nuestra app</a></div>
 </div>
 </section>
 <footer>
@@ -720,6 +719,36 @@ function slide(btn, dir){
   cur = (cur + dir + imgs.length) % imgs.length;
   imgs[cur].classList.add('on'); if(dots[cur]) dots[cur].classList.add('on');
 }
+</script>
+
+<button id="agenteBtn" onclick="document.getElementById('agentePanel').style.display='flex'" style="position:fixed;left:14px;bottom:16px;z-index:9998;background:#0b2a4a;color:#fff;border:2px solid #f97316;border-radius:999px;padding:11px 18px;font-weight:800;font-size:15px;box-shadow:0 4px 14px rgba(0,0,0,.35);cursor:pointer">🤖 Agente</button>
+<div id="agentePanel" style="display:none;position:fixed;left:10px;right:10px;bottom:70px;z-index:9999;max-width:420px;background:#fff;border-radius:16px;box-shadow:0 10px 34px rgba(0,0,0,.4);flex-direction:column;overflow:hidden;font-family:inherit">
+<div style="background:#0b2a4a;color:#fff;padding:12px 14px;display:flex;justify-content:space-between;align-items:center"><b>🤖 Agente Alequi</b><span><button onclick="agenteLang('es')" style="background:#f97316;color:#fff;border:0;border-radius:6px;padding:3px 8px;font-weight:700;cursor:pointer">ES</button> <button onclick="agenteLang('en')" style="background:#fff;color:#0b2a4a;border:0;border-radius:6px;padding:3px 8px;font-weight:700;cursor:pointer">EN</button> <button onclick="document.getElementById('agentePanel').style.display='none'" style="background:transparent;color:#fff;border:0;font-size:18px;cursor:pointer">✕</button></span></div>
+<div id="agenteBody" style="padding:12px 14px;font-size:14.5px;color:#1f2937;max-height:46vh;overflow:auto"></div>
+<div style="padding:10px 12px;display:flex;flex-wrap:wrap;gap:7px;border-top:1px solid #e5e7eb">
+<button class="agChip" onclick="agenteAsk('precios')" style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:999px;padding:7px 12px;cursor:pointer;font-size:13.5px"></button>
+<button class="agChip" onclick="agenteAsk('pedir')" style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:999px;padding:7px 12px;cursor:pointer;font-size:13.5px"></button>
+<button class="agChip" onclick="agenteAsk('direccion')" style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:999px;padding:7px 12px;cursor:pointer;font-size:13.5px"></button>
+<button class="agChip" onclick="agenteAsk('delivery')" style="background:#eef2ff;border:1px solid #c7d2fe;border-radius:999px;padding:7px 12px;cursor:pointer;font-size:13.5px"></button>
+</div>
+<a href="https://wa.me/51993893918" id="agenteWa" style="display:block;text-align:center;background:#22c55e;color:#fff;font-weight:800;padding:12px;text-decoration:none"></a>
+</div>
+<script>
+var AG = {
+es:{hi:"Hola, soy el agente de Alequi Electric. Toca una pregunta y te respondo al instante.",chips:["Precios y catálogos","¿Cómo pido?","Dirección","Delivery y recojo"],wa:"Hablar por WhatsApp",
+precios:"Tenemos más de 1,400 productos. En esta página ves cables y luces con precios, y en los botones de colores están los catálogos completos: Schneider, General, Línea Solar e Iluminación. Si un producto dice Consultar precio, pregúntanos por WhatsApp y te cotizamos al instante.",
+pedir:"Pedir es fácil: en cualquier producto toca el botón de WhatsApp y te atendemos al instante con el precio y el stock. También puedes escribirnos directo al 993 893 918.",
+direccion:"Estamos en Av. Argentina N° 215, Pasaje 2, Stand Z-11, C.C. Nicolini, Las Malvinas, Lima, Perú. Ventas por mayor y menor.",
+delivery:"Coordinamos delivery o recojo en tienda por WhatsApp. Arma tu pedido, escríbenos al 993 893 918 y lo confirmamos contigo al instante."},
+en:{hi:"Hi, I am the Alequi Electric agent. Tap a question and I will answer right away.",chips:["Prices & catalogues","How do I order?","Address","Delivery & pickup"],wa:"Chat on WhatsApp",
+precios:"We have 1,400+ products. This page shows cables and lighting with prices, and the coloured buttons open the full catalogues: Schneider, General, Solar Line and Lighting. If a product says Ask for price, message us on WhatsApp for an instant quote.",
+pedir:"Ordering is easy: tap the WhatsApp button on any product and we will help you right away with price and stock. You can also message us directly at +51 993 893 918.",
+direccion:"We are at Av. Argentina N° 215, Pasaje 2, Stand Z-11, C.C. Nicolini, Las Malvinas, Lima, Peru. Wholesale and retail.",
+delivery:"We arrange delivery or in-store pickup over WhatsApp. Put your order together, message us at +51 993 893 918 and we confirm it with you right away."}};
+var agL='es';
+function agenteLang(l){agL=l;var c=document.querySelectorAll('.agChip');AG[l].chips.forEach(function(x,i){c[i].textContent=x});document.getElementById('agenteWa').textContent=AG[l].wa;document.getElementById('agenteBody').textContent=AG[l].hi}
+function agenteAsk(k){document.getElementById('agenteBody').textContent=AG[agL][k]}
+agenteLang('es');
 </script>
 </body>
 </html>
