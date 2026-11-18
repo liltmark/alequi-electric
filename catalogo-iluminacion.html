@@ -2261,12 +2261,12 @@ es:{hi:"Hola, soy el agente de Alequi Electric. Toca una pregunta y te respondo 
 precios:"Tenemos más de 1,400 productos. En esta página ves cables y luces con precios, y en los botones de colores están los catálogos completos: Schneider, General, Línea Solar e Iluminación. Si un producto dice Consultar precio, pregúntanos por WhatsApp y te cotizamos al instante.",
 pedir:"Pedir es fácil: en cualquier producto toca el botón de WhatsApp y te atendemos al instante con el precio y el stock. También puedes escribirnos directo al 993 893 918.",
 direccion:"Estamos en Av. Argentina N° 215, Pasaje 2, Stand Z-11, C.C. Nicolini, Las Malvinas, Lima, Perú. Ventas por mayor y menor.",
-delivery:"Coordinamos delivery o recojo en tienda por WhatsApp. Arma tu pedido, escríbenos al 993 893 918 y lo confirmamos contigo al instante."},
+delivery:"Coordinamos delivery o recojo en tienda. El delivery demora de 2 a 3 días. Arma tu pedido en el carrito y al finalizar llega completo a nuestro WhatsApp."},
 en:{hi:"Hi, I am the Alequi Electric agent. Tap a question and I will answer right away.",chips:["Prices & catalogues","How do I order?","Address","Delivery & pickup"],wa:"Chat on WhatsApp",
 precios:"We have 1,400+ products. This page shows cables and lighting with prices, and the coloured buttons open the full catalogues: Schneider, General, Solar Line and Lighting. If a product says Ask for price, message us on WhatsApp for an instant quote.",
 pedir:"Ordering is easy: tap the WhatsApp button on any product and we will help you right away with price and stock. You can also message us directly at +51 993 893 918.",
 direccion:"We are at Av. Argentina N° 215, Pasaje 2, Stand Z-11, C.C. Nicolini, Las Malvinas, Lima, Peru. Wholesale and retail.",
-delivery:"We arrange delivery or in-store pickup over WhatsApp. Put your order together, message us at +51 993 893 918 and we confirm it with you right away."}};
+delivery:"We arrange delivery or in-store pickup. Delivery takes 2 to 3 days. Build your order in the cart and at checkout it arrives complete on our WhatsApp."}};
 var agL='es';
 function agenteLang(l){agL=l;var c=document.querySelectorAll('.agChip');AG[l].chips.forEach(function(x,i){c[i].textContent=x});document.getElementById('agenteWa').textContent=AG[l].wa;document.getElementById('agenteBody').textContent=AG[l].hi}
 function agenteAsk(k){document.getElementById('agenteBody').textContent=AG[agL][k]}
@@ -2287,5 +2287,100 @@ agenteLang('es');
 <a href="https://alequielectric.store/AlequiTienda.apk" data-es="📱 Descargar la app" data-en="📱 Download the app">📱 Descargar la app</a>
 <a href="https://wa.me/51993893918" data-es="💬 WhatsApp 993 893 918" data-en="💬 WhatsApp +51 993 893 918">💬 WhatsApp 993 893 918</a>
 </nav>
+
+<button id="cartBtn" onclick="openCart()" style="position:fixed;right:14px;bottom:96px;z-index:9998;background:#f97316;color:#fff;border:0;border-radius:999px;width:56px;height:56px;font-size:25px;box-shadow:0 4px 14px rgba(0,0,0,.35);cursor:pointer">🛒<span id="cartCount" style="position:absolute;top:-4px;right:-4px;background:#dc2626;color:#fff;font-size:12px;font-weight:800;border-radius:999px;min-width:20px;height:20px;line-height:20px;display:none">0</span></button>
+<div id="cartPanel" style="display:none;position:fixed;top:0;right:0;width:360px;max-width:92vw;height:100%;background:#fff;z-index:10005;box-shadow:-6px 0 22px rgba(0,0,0,.35);flex-direction:column;font-family:inherit">
+<div style="background:#0b2a4a;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center"><b data-es="🛒 Tu pedido" data-en="🛒 Your order">🛒 Tu pedido</b><button onclick="closeCart()" style="background:transparent;border:0;color:#fff;font-size:22px;cursor:pointer">✕</button></div>
+<div id="cartItems" style="flex:1;overflow:auto;padding:12px 14px"></div>
+<div style="padding:12px 14px;border-top:1px solid #e5e7eb">
+<div style="display:flex;gap:8px;margin-bottom:10px">
+<button id="mDel" onclick="setMethod('delivery')" style="flex:1;padding:10px;border-radius:10px;border:2px solid #f97316;background:#fff7ed;font-weight:700;cursor:pointer" data-es="🚚 Delivery (2 a 3 días)" data-en="🚚 Delivery (2 to 3 days)">🚚 Delivery (2 a 3 días)</button>
+<button id="mPick" onclick="setMethod('pickup')" style="flex:1;padding:10px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;font-weight:700;cursor:pointer" data-es="🏪 Recojo en tienda" data-en="🏪 Store pickup">🏪 Recojo en tienda</button>
+</div>
+<input id="cartName" data-es-ph="Tu nombre" placeholder="Tu nombre" style="width:100%;padding:10px;border:1px solid #d1d5db;border-radius:10px;margin-bottom:8px;box-sizing:border-box">
+<input id="cartAddr" data-es-ph="Dirección de entrega" placeholder="Dirección de entrega" style="width:100%;padding:10px;border:1px solid #d1d5db;border-radius:10px;margin-bottom:10px;box-sizing:border-box">
+<div id="cartTotal" style="font-weight:800;font-size:17px;margin-bottom:10px"></div>
+<button onclick="checkoutWA()" style="width:100%;background:#22c55e;color:#fff;font-weight:800;padding:14px;border:0;border-radius:12px;font-size:16.5px;cursor:pointer" data-es="✅ Pedir por WhatsApp" data-en="✅ Order on WhatsApp">✅ Pedir por WhatsApp</button>
+<button onclick="clearCart()" style="width:100%;background:transparent;color:#6b7280;padding:8px;border:0;cursor:pointer;font-size:13px" data-es="Vaciar el carrito" data-en="Empty the cart">Vaciar el carrito</button>
+</div>
+</div>
+<script>
+var cart = {};
+try { cart = JSON.parse(localStorage.getItem('alequiCart') || '{}'); } catch(e) { cart = {}; }
+var cartMethod = 'delivery';
+function cartSave(){ localStorage.setItem('alequiCart', JSON.stringify(cart)); cartBadge(); }
+function cartCountN(){ var n=0; for (var k in cart) n += cart[k].qty; return n; }
+function cartBadge(){ var n = cartCountN(), b = document.getElementById('cartCount'); b.textContent = n; b.style.display = n ? 'block' : 'none'; }
+function L(){ return document.documentElement.lang === 'en' ? 'en' : 'es'; }
+function addToCart(btn){
+  var card = btn.closest('.card'); if (!card) return;
+  var h = card.querySelector('h3'); var name = h ? (h.getAttribute('data-es') || h.textContent.trim()) : 'Producto';
+  var p = card.querySelector('.price'); var price = null;
+  if (p) { var m = p.textContent.replace(/,/g,'').match(/S\/\s*([0-9]+(?:\.[0-9]+)?)/); if (m) price = parseFloat(m[1]); }
+  if (!cart[name]) cart[name] = {price: price, qty: 0};
+  cart[name].qty++; cartSave(); renderCart();
+  btn.textContent = '✓'; setTimeout(function(){ btn.innerHTML = btn.getAttribute('data-es'); if (L()==='en') btn.innerHTML = btn.getAttribute('data-en'); }, 900);
+}
+function chQty(name, d){ if (!cart[name]) return; cart[name].qty += d; if (cart[name].qty <= 0) delete cart[name]; cartSave(); renderCart(); }
+function rmItem(name){ delete cart[name]; cartSave(); renderCart(); }
+function clearCart(){ cart = {}; cartSave(); renderCart(); }
+function setMethod(m){ cartMethod = m;
+  document.getElementById('mDel').style.borderColor = m==='delivery' ? '#f97316' : '#e5e7eb';
+  document.getElementById('mDel').style.background = m==='delivery' ? '#fff7ed' : '#fff';
+  document.getElementById('mPick').style.borderColor = m==='pickup' ? '#f97316' : '#e5e7eb';
+  document.getElementById('mPick').style.background = m==='pickup' ? '#fff7ed' : '#fff';
+  document.getElementById('cartAddr').style.display = m==='delivery' ? 'block' : 'none';
+}
+function renderCart(){
+  var box = document.getElementById('cartItems'); var en = L()==='en';
+  var keys = Object.keys(cart);
+  if (!keys.length) { box.innerHTML = '<p style="color:#6b7280">' + (en ? 'Your cart is empty. Add products with the orange button on each product.' : 'Tu carrito está vacío. Agrega productos con el botón naranja de cada producto.') + '</p>'; }
+  else {
+    var html = '';
+    keys.forEach(function(name){
+      var it = cart[name];
+      var line = it.price != null ? 'S/ ' + (it.price * it.qty).toFixed(2) : (en ? 'ask for price' : 'a consultar');
+      html += '<div style="border-bottom:1px solid #eef2f7;padding:9px 0"><div style="font-weight:700;font-size:14px">' + name + '</div>'
+        + '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:5px"><span>'
+        + '<button onclick="chQty(\'' + name.replace(/'/g, "\'") + '\',-1)" style="width:28px;height:28px;border-radius:8px;border:1px solid #d1d5db;background:#fff;cursor:pointer">−</button> '
+        + '<b>' + it.qty + '</b> '
+        + '<button onclick="chQty(\'' + name.replace(/'/g, "\'") + '\',1)" style="width:28px;height:28px;border-radius:8px;border:1px solid #d1d5db;background:#fff;cursor:pointer">+</button> '
+        + '<button onclick="rmItem(\'' + name.replace(/'/g, "\'") + '\')" style="border:0;background:transparent;color:#dc2626;cursor:pointer;font-size:15px">✕</button></span>'
+        + '<b>' + line + '</b></div></div>';
+    });
+    box.innerHTML = html;
+  }
+  var total = 0, hasAsk = false;
+  keys.forEach(function(name){ var it = cart[name]; if (it.price != null) total += it.price * it.qty; else hasAsk = true; });
+  document.getElementById('cartTotal').textContent = (en ? 'Total: ' : 'Total: ') + 'S/ ' + total.toFixed(2) + (hasAsk ? (en ? ' (+ items to quote)' : ' (+ productos a consultar)') : '');
+}
+function openCart(){ renderCart(); setMethod(cartMethod); document.getElementById('cartPanel').style.display = 'flex'; }
+function closeCart(){ document.getElementById('cartPanel').style.display = 'none'; }
+function checkoutWA(){
+  var keys = Object.keys(cart); if (!keys.length) return;
+  var en = L()==='en';
+  var lines = [en ? 'Hello Ricardo Fernández Electric, I want to order:' : 'Hola Ricardo Fernández Electric, quiero pedir:'];
+  var total = 0;
+  keys.forEach(function(name){ var it = cart[name];
+    if (it.price != null) { lines.push('• ' + it.qty + ' × ' + name + ' — S/ ' + (it.price * it.qty).toFixed(2)); total += it.price * it.qty; }
+    else lines.push('• ' + it.qty + ' × ' + name + ' — ' + (en ? 'ask for price' : 'a consultar'));
+  });
+  lines.push((en ? 'Total: ' : 'Total: ') + 'S/ ' + total.toFixed(2));
+  lines.push((en ? 'Method: ' : 'Método: ') + (cartMethod === 'delivery' ? (en ? 'Delivery (2 to 3 days)' : 'Delivery (2 a 3 días)') : (en ? 'Store pickup' : 'Recojo en tienda')));
+  var nm = document.getElementById('cartName').value.trim(); if (nm) lines.push((en ? 'Name: ' : 'Nombre: ') + nm);
+  if (cartMethod === 'delivery') { var ad = document.getElementById('cartAddr').value.trim(); if (ad) lines.push((en ? 'Address: ' : 'Dirección: ') + ad); }
+  window.open('https://wa.me/51993893918?text=' + encodeURIComponent(lines.join('\n')), '_blank');
+}
+document.querySelectorAll('.card').forEach(function(card){
+  var wa = card.querySelector('a.wa'); if (!wa) return;
+  var b = document.createElement('button');
+  b.setAttribute('data-es', '🛒 Añadir al carrito'); b.setAttribute('data-en', '🛒 Add to cart');
+  b.textContent = '🛒 Añadir al carrito';
+  b.style.cssText = 'display:block;width:100%;margin-top:8px;background:#f97316;color:#fff;font-weight:700;padding:11px;border:0;border-radius:10px;cursor:pointer;font-size:15px';
+  b.onclick = function(){ addToCart(this); };
+  wa.parentNode.appendChild(b);
+});
+cartBadge();
+</script>
 </body>
 </html>
