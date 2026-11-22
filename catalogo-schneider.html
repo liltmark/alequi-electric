@@ -90,6 +90,16 @@ body{padding-bottom:92px}
 #menuClose{background:transparent;border:0;color:#fff;font-size:24px;cursor:pointer;float:right}
 #menuShade{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:10000}
 #menuShade.open{display:block}
+
+/* cotizacion form (23 Nov) */
+#cotizacion label{display:block;color:#fff;font-size:13.5px;font-weight:700;margin:0 0 6px}
+#cotizacion input,#cotizacion textarea{width:100%;padding:11px 12px;border:2px solid #d5dbec;border-radius:10px;font-size:15px;background:#fff;color:#1c2333;font-family:inherit}
+#cotizacion input:focus,#cotizacion textarea:focus{outline:none;border-color:#ff7a00}
+.cot-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+@media (max-width:640px){.cot-grid{grid-template-columns:1fr}}
+#cotSend{background:#ff7a00;color:#fff;border:0;font-weight:800;font-size:16px;padding:13px 26px;border-radius:10px;cursor:pointer;width:100%;margin-top:12px}
+#cotSend:hover{background:#e56e00}
+#cotSend:disabled{opacity:.6;cursor:wait}
 </style>
 </head>
 <body>
@@ -4651,6 +4661,90 @@ body{padding-bottom:92px}
     
 </main>
 
+<section id="cotizacion" style="max-width:1100px;margin:26px auto;padding:0 14px">
+  <div style="background:#0b2a4a;border-radius:16px;padding:24px 20px;box-shadow:0 4px 18px rgba(11,42,74,.25)">
+    <h3 style="color:#fff;font-size:22px;margin-bottom:6px" data-es="📝 Solicita tu cotización" data-en="📝 Request a quote">📝 Solicita tu cotización</h3>
+    <p style="color:#c6cdf5;font-size:14px;line-height:1.55;margin-bottom:16px" data-es="Déjanos tus datos y los productos que necesitas. Te responderemos con precios y stock lo antes posible." data-en="Leave us your details and the products you need. We will reply with prices and stock as soon as possible.">Déjanos tus datos y los productos que necesitas. Te responderemos con precios y stock lo antes posible.</p>
+    <form id="cotForm">
+      <div class="cot-grid">
+        <div>
+          <label for="cotNombres" data-es="Nombres *" data-en="First name *">Nombres *</label>
+          <input id="cotNombres" type="text" required autocomplete="given-name">
+        </div>
+        <div>
+          <label for="cotApellidos" data-es="Apellidos" data-en="Last name">Apellidos</label>
+          <input id="cotApellidos" type="text" autocomplete="family-name">
+        </div>
+        <div>
+          <label for="cotCelular" data-es="Celular (WhatsApp) *" data-en="Phone (WhatsApp) *">Celular (WhatsApp) *</label>
+          <input id="cotCelular" type="tel" required autocomplete="tel" placeholder="999 888 777">
+        </div>
+        <div>
+          <label for="cotCorreo" data-es="Correo electrónico" data-en="Email">Correo electrónico</label>
+          <input id="cotCorreo" type="email" autocomplete="email" placeholder="tucorreo@ejemplo.com">
+        </div>
+      </div>
+      <div>
+        <label for="cotMensaje" data-es="Mensaje *" data-en="Message *">Mensaje *</label>
+        <textarea id="cotMensaje" rows="4" required placeholder="¿Qué productos necesitas? Escribe los productos y cantidades"></textarea>
+      </div>
+      <button type="submit" id="cotSend" data-es="Enviar solicitud" data-en="Send request">Enviar solicitud</button>
+      <div id="cotError" style="display:none;margin-top:14px;background:#fff;border-radius:10px;padding:12px 14px">
+        <p style="color:#b91c1c;font-size:14px;line-height:1.5;margin-bottom:10px" data-es="⚠️ No se pudo enviar tu solicitud. Inténtalo de nuevo o escríbenos por WhatsApp:" data-en="⚠️ Your request could not be sent. Try again or write to us on WhatsApp:">⚠️ No se pudo enviar tu solicitud. Inténtalo de nuevo o escríbenos por WhatsApp:</p>
+        <a target="_blank" href="https://wa.me/51993893918?text=Hola%2C%20quiero%20una%20cotizaci%C3%B3n" style="display:inline-block;background:#25d366;color:#fff;font-weight:700;padding:10px 18px;border-radius:10px;text-decoration:none;font-size:14.5px" data-es="💬 Pedir por WhatsApp" data-en="💬 Ask on WhatsApp">💬 Pedir por WhatsApp</a>
+      </div>
+    </form>
+    <div id="cotThanks" style="display:none;text-align:center;padding:20px 6px">
+      <p style="color:#fff;font-size:18px;font-weight:700;line-height:1.55" data-es="✅ ¡Gracias! Tu solicitud fue enviada. Te responderemos pronto." data-en="✅ Thank you! Your request was sent. We will reply soon.">✅ ¡Gracias! Tu solicitud fue enviada. Te responderemos pronto.</p>
+    </div>
+  </div>
+</section>
+<script>
+(function(){
+  var form=document.getElementById('cotForm');
+  if(!form) return;
+  var PH={es:'\u00BFQu\u00E9 productos necesitas? Escribe los productos y cantidades',en:'What products do you need? Write the products and quantities'};
+  var msg=document.getElementById('cotMensaje');
+  function curLang(){ return document.documentElement.lang==='en'?'en':'es'; }
+  function syncPh(){ msg.placeholder=PH[curLang()]; }
+  syncPh();
+  new MutationObserver(syncPh).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+  form.addEventListener('submit',function(ev){
+    ev.preventDefault();
+    var btn=document.getElementById('cotSend');
+    var err=document.getElementById('cotError');
+    err.style.display='none';
+    btn.disabled=true;
+    var nombre=(document.getElementById('cotNombres').value.trim()+' '+document.getElementById('cotApellidos').value.trim()).trim();
+    var data={
+      name:nombre,
+      celular:document.getElementById('cotCelular').value.trim(),
+      correo:document.getElementById('cotCorreo').value.trim(),
+      mensaje:msg.value.trim(),
+      _subject:'Nueva solicitud de cotizaci\u00F3n \u2014 Alequi Electric',
+      _template:'table',
+      _honey:'',
+      _captcha:'false'
+    };
+    fetch('https://formsubmit.co/ajax/info@alequielectric.store',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify(data)
+    }).then(function(r){ return r.json(); }).then(function(j){
+      if(j && (j.success==='true' || j.success===true)){
+        form.style.display='none';
+        document.getElementById('cotThanks').style.display='block';
+        if(window.setLang) setLang(curLang());
+      } else { throw new Error('rejected'); }
+    }).catch(function(){
+      btn.disabled=false;
+      err.style.display='block';
+      if(window.setLang) setLang(curLang());
+    });
+  });
+})();
+</script>
+
 <section class="about">
   <div class="in">
     <h3 data-es="Tu tienda de cables en Las Malvinas" data-en="Your cable store in Las Malvinas">Tu tienda de cables en Las Malvinas</h3>
@@ -4688,6 +4782,7 @@ body{padding-bottom:92px}
       <h4 data-es="Contacto" data-en="Contact">Contacto</h4>
       <p>WhatsApp: <a href="https://wa.me/51993893918">993 893 918</a></p>
       <p><span data-es="Correo" data-en="Email">Correo</span>: <a href="mailto:info@alequielectric.store">info@alequielectric.store</a></p>
+      <p><a href="#cotizacion" style="color:#ff8c1a;font-weight:700" data-es="📝 Solicitar cotización" data-en="📝 Request a quote">📝 Solicitar cotización</a></p>
       <p data-es="Atención en tienda — Las Malvinas, Lima" data-en="In-store service — Las Malvinas, Lima">Atención en tienda — Las Malvinas, Lima</p>
     </div>
     <div>
@@ -4826,6 +4921,7 @@ agenteLang('es');
 <a href="catalogo-industrial.html" data-es="🏭 Iluminación Industrial" data-en="🏭 Industrial Lighting">🏭 Iluminación Industrial</a>
 <a href="catalogo-cables.html" data-es="🧵 Cables y Conductores" data-en="🧵 Cables &amp; Conductors">🧵 Cables y Conductores</a>
 <a href="catalogo-accesorios.html" data-es="🧰 Accesorios" data-en="🧰 Accessories">🧰 Accesorios</a>
+<a href="#cotizacion" onclick="document.getElementById('sideMenu').classList.remove('open');document.getElementById('menuShade').classList.remove('open')" data-es="📝 Cotización" data-en="📝 Quote">📝 Cotización</a>
 <a href="https://alequielectric.store/AlequiTienda.apk" data-es="📱 Descargar la app" data-en="📱 Download the app">📱 Descargar la app</a>
 <a href="https://wa.me/51993893918" data-es="💬 WhatsApp 993 893 918" data-en="💬 WhatsApp +51 993 893 918">💬 WhatsApp 993 893 918</a>
 </nav>
