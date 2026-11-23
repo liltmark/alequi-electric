@@ -131,6 +131,8 @@
     <input type="text" id="sBcp" inputmode="numeric" maxlength="23" placeholder="Ej.: 19123456789012" autocomplete="off">
     <label>CCI BCP (opcional)</label>
     <input type="text" id="sCci" inputmode="numeric" maxlength="23" placeholder="Ej.: 00219112345678901234" autocomplete="off">
+    <label>Titular de la cuenta (opcional, sale en el PDF)</label>
+    <input type="text" id="sTit" placeholder="Ej.: Ricardo Raúl Fernández" autocomplete="off">
   </div>
 
   <div class="card">
@@ -263,7 +265,9 @@
 'use strict';
 /* ================= state ================= */
 var LS_NUM = 'aq_cot_num', LS_DRAFT = 'aq_cot_draft', LS_RUC = 'aq_cot_store_ruc',
-    LS_BCP = 'aq_cot_store_bcp', LS_CCI = 'aq_cot_store_cci';
+    LS_BCP = 'aq_cot_store_bcp', LS_CCI = 'aq_cot_store_cci', LS_TIT = 'aq_cot_store_tit';
+/* datos bancarios por defecto de la tienda (si la vendedora guarda otros, los suyos mandan) */
+var DEF_BCP = '19177808384024', DEF_CCI = '00219117780838402459', DEF_TIT = 'Ricardo Raúl Fernández';
 var num = parseInt(localStorage.getItem(LS_NUM) || '1', 10);
 if (isNaN(num) || num < 1) num = 1;
 var items = [ {desc:'', qty:1, price:'', um:'UN', img:''} ];
@@ -421,14 +425,18 @@ function persistStore(){
     localStorage.setItem(LS_RUC, rucVal('sRuc'));
     localStorage.setItem(LS_BCP, $('sBcp').value.trim());
     localStorage.setItem(LS_CCI, $('sCci').value.trim());
+    localStorage.setItem(LS_TIT, $('sTit').value.trim());
   } catch (e) {}
 }
 function loadStore(){
   try {
     $('sRuc').value = localStorage.getItem(LS_RUC) || '';
-    $('sBcp').value = localStorage.getItem(LS_BCP) || '';
-    $('sCci').value = localStorage.getItem(LS_CCI) || '';
-  } catch (e) {}
+    $('sBcp').value = localStorage.getItem(LS_BCP) || DEF_BCP;
+    $('sCci').value = localStorage.getItem(LS_CCI) || DEF_CCI;
+    $('sTit').value = localStorage.getItem(LS_TIT) || DEF_TIT;
+  } catch (e) {
+    $('sBcp').value = DEF_BCP; $('sCci').value = DEF_CCI; $('sTit').value = DEF_TIT;
+  }
 }
 
 /* ================= draft ================= */
@@ -503,12 +511,13 @@ function buildDoc(){
   $('dWords').textContent = 'SON: ' + totalEnLetras(t.total);
   $('dNote').style.display = igvMode === 'incl' ? '' : 'none';
   /* banco — solo BCP */
-  var bcp = $('sBcp').value.trim(), cci = $('sCci').value.trim();
-  if (bcp || cci){
+  var bcp = $('sBcp').value.trim(), cci = $('sCci').value.trim(), tit = $('sTit').value.trim();
+  if (bcp || cci || tit){
     var parts = [];
     if (bcp) parts.push('SOLES: ' + esc(bcp));
     if (cci) parts.push('CCI: ' + esc(cci));
-    $('dBank').innerHTML = '<span class="bk">BCP</span><br>' + parts.join(' &nbsp;·&nbsp; ');
+    if (tit) parts.push('Titular: ' + esc(tit));
+    $('dBank').innerHTML = '<span class="bk">BCP</span> — ' + parts.join(' &nbsp;·&nbsp; ');
     $('dBank').style.display = '';
   } else {
     $('dBank').innerHTML = '';
@@ -582,7 +591,7 @@ function newQuote(){
 $('qNum').textContent = pad3(num);
 $('qDate').textContent = fecha;
 loadStore();
-['sRuc','sBcp','sCci'].forEach(function(id){ $(id).addEventListener('input', persistStore); });
+['sRuc','sBcp','sCci','sTit'].forEach(function(id){ $(id).addEventListener('input', persistStore); });
 loadDraft();
 renderItems();
 recalc();
