@@ -110,6 +110,12 @@
   </div>
 
   <div class="card">
+    <h2>🏪 Datos de la tienda</h2>
+    <label>RUC de la tienda</label>
+    <input type="text" id="sRuc" inputmode="numeric" maxlength="11" placeholder="Ej.: 20123456789" autocomplete="off">
+  </div>
+
+  <div class="card">
     <h2>👤 Datos del cliente</h2>
     <label>Nombre del cliente <span class="req">*</span></label>
     <input type="text" id="cName" placeholder="Ej.: Juan Pérez" autocomplete="off">
@@ -117,6 +123,8 @@
     <input type="tel" id="cPhone" placeholder="Ej.: 987 654 321" autocomplete="off">
     <label>Dirección (opcional)</label>
     <input type="text" id="cAddr" placeholder="Ej.: Av. Los Pinos 123, Lima" autocomplete="off">
+    <label>RUC del cliente (opcional)</label>
+    <input type="text" id="cRuc" inputmode="numeric" maxlength="11" placeholder="Ej.: 20123456789" autocomplete="off">
   </div>
 
   <div class="card">
@@ -157,7 +165,7 @@
       <h1>Ricardo Fernández Electric</h1>
       <div class="sub">Alequi Electric</div>
       <p>Av. Argentina N° 215, Psje 2 – Stand Z-11, CC. Nicolini, Las Malvinas, Lima, Perú<br>
-      WhatsApp: 993 893 918 &nbsp;·&nbsp; Correo: info@alequielectric.store</p>
+      WhatsApp: 993 893 918 &nbsp;·&nbsp; Correo: info@alequielectric.store<span id="dStoreRuc"></span></p>
     </div>
     <div class="d-num">
       <span>Cotización</span>
@@ -194,7 +202,7 @@
 <script>
 'use strict';
 /* ================= state ================= */
-var LS_NUM = 'aq_cot_num', LS_DRAFT = 'aq_cot_draft';
+var LS_NUM = 'aq_cot_num', LS_DRAFT = 'aq_cot_draft', LS_RUC = 'aq_cot_store_ruc';
 var num = parseInt(localStorage.getItem(LS_NUM) || '1', 10);
 if (isNaN(num) || num < 1) num = 1;
 var items = [ {desc:'', qty:1, price:''} ];
@@ -216,6 +224,7 @@ function esc(s){
   return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function pnum(v){ var n = parseFloat(v); return isNaN(n) ? 0 : n; }
+function rucVal(id){ return ($(id).value || '').replace(/\D/g, '').slice(0, 11); }
 
 /* ================= items ================= */
 function rowHTML(it, i){
@@ -267,7 +276,7 @@ function recalc(){
 function saveDraft(){
   try {
     localStorage.setItem(LS_DRAFT, JSON.stringify({
-      name: $('cName').value, phone: $('cPhone').value, addr: $('cAddr').value,
+      name: $('cName').value, phone: $('cPhone').value, addr: $('cAddr').value, cru: $('cRuc').value,
       valid: $('qValid').value, notes: $('qNotes').value, igv: igvOn, items: items
     }));
   } catch (e) {}
@@ -276,7 +285,7 @@ function loadDraft(){
   try {
     var d = JSON.parse(localStorage.getItem(LS_DRAFT) || 'null');
     if (!d) return;
-    $('cName').value = d.name || ''; $('cPhone').value = d.phone || ''; $('cAddr').value = d.addr || '';
+    $('cName').value = d.name || ''; $('cPhone').value = d.phone || ''; $('cAddr').value = d.addr || ''; $('cRuc').value = d.cru || '';
     $('qValid').value = d.valid || '7 días'; $('qNotes').value = d.notes || '';
     igvOn = !!d.igv; $('igvToggle').checked = igvOn;
     if (Array.isArray(d.items) && d.items.length) items = d.items;
@@ -291,9 +300,13 @@ function buildDoc(){
   var t = calc(), vi = validItems();
   $('dNum').textContent = pad3(num);
   $('dDate').textContent = fecha;
+  var sruc = rucVal('sRuc');
+  $('dStoreRuc').innerHTML = sruc ? '<br>RUC: ' + esc(sruc) : '';
   var c = '<b>Cliente:</b> ' + esc($('cName').value);
   if ($('cPhone').value.trim()) c += '<br><b>Celular:</b> ' + esc($('cPhone').value);
   if ($('cAddr').value.trim()) c += '<br><b>Dirección:</b> ' + esc($('cAddr').value);
+  var cru = rucVal('cRuc');
+  if (cru) c += '<br><b>RUC:</b> ' + esc(cru);
   $('dCust').innerHTML = c;
   var rows = '';
   for (var i = 0; i < vi.length; i++){
@@ -335,6 +348,8 @@ function sendWA(){
   var t = calc(), vi = validItems(), lines = [];
   lines.push('*Cotización N° ' + pad3(num) + ' — Ricardo Fernández Electric*');
   lines.push('Cliente: ' + $('cName').value.trim());
+  var cru2 = rucVal('cRuc');
+  if (cru2) lines.push('RUC cliente: ' + cru2);
   lines.push('Fecha: ' + fecha);
   lines.push('');
   for (var i = 0; i < vi.length; i++){
@@ -354,7 +369,7 @@ function newQuote(){
   if (!confirm('¿Empezar una cotización nueva? Se borrará la actual.')) return;
   num += 1;
   try { localStorage.setItem(LS_NUM, String(num)); localStorage.removeItem(LS_DRAFT); } catch (e) {}
-  $('cName').value = ''; $('cPhone').value = ''; $('cAddr').value = '';
+  $('cName').value = ''; $('cPhone').value = ''; $('cAddr').value = ''; $('cRuc').value = '';
   $('qNotes').value = ''; $('qValid').value = '7 días';
   igvOn = false; $('igvToggle').checked = false;
   items = [ {desc:'', qty:'1', price:''} ];
@@ -367,10 +382,14 @@ function newQuote(){
 /* ================= init ================= */
 $('qNum').textContent = pad3(num);
 $('qDate').textContent = fecha;
+try { $('sRuc').value = localStorage.getItem(LS_RUC) || ''; } catch (e) {}
+$('sRuc').addEventListener('input', function(){
+  try { localStorage.setItem(LS_RUC, rucVal('sRuc')); } catch (e) {}
+});
 loadDraft();
 renderItems();
 recalc();
-['cName','cPhone','cAddr','qValid','qNotes'].forEach(function(id){
+['cName','cPhone','cAddr','cRuc','qValid','qNotes'].forEach(function(id){
   $(id).addEventListener('input', saveDraft);
 });
 $('igvToggle').addEventListener('change', function(){ igvOn = this.checked; recalc(); saveDraft(); });
