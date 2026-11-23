@@ -26,10 +26,10 @@
   .card h2{ font-size:16px; color:var(--navy); margin-bottom:10px; }
   label{ display:block; font-size:13.5px; font-weight:600; color:var(--mut); margin:10px 0 5px; }
   label:first-of-type{ margin-top:0; }
-  input[type=text], input[type=number], input[type=tel], textarea{
+  input[type=text], input[type=number], input[type=tel], textarea, select{
     width:100%; font-size:16px; padding:12px; border:1.5px solid var(--line); border-radius:10px; background:#FBFCFE; color:var(--ink);
   }
-  input:focus, textarea:focus{ outline:none; border-color:var(--orange); background:#fff; }
+  input:focus, textarea:focus, select:focus{ outline:none; border-color:var(--orange); background:#fff; }
   textarea{ min-height:64px; resize:vertical; }
   .req{ color:#D33; }
   /* ---------- items ---------- */
@@ -39,21 +39,22 @@
   .item .desc{ padding-right:44px; }
   .item .row3{ display:flex; gap:8px; margin-top:8px; }
   .item .row3 > div{ flex:1; }
+  .item .row3 > div.um{ flex:.85; }
   .item .row3 label{ margin:0 0 4px; font-size:12px; }
+  .item .row3 select{ padding:12px 6px; }
   .item .imp{ display:flex; align-items:center; justify-content:center; height:48px; background:#FFF3E6; border:1.5px dashed var(--orange);
-    border-radius:10px; font-weight:800; color:var(--navy); font-size:16px; }
+    border-radius:10px; font-weight:800; color:var(--navy); font-size:15px; }
+  .item .photorow{ margin-top:10px; display:flex; align-items:center; gap:10px; }
+  .item .phbtn{ display:inline-block; margin:0; padding:9px 14px; font-size:14px; font-weight:700; color:#C75B00;
+    background:#FFF7EF; border:1.5px dashed var(--orange); border-radius:10px; cursor:pointer; }
+  .item .thumb{ width:44px; height:44px; object-fit:cover; border-radius:8px; border:1px solid var(--line); }
+  .item .phdel{ padding:8px 12px; font-size:13px; font-weight:700; color:#C62828; background:#FDECEC; border:none; border-radius:9px; cursor:pointer; }
   .addbtn{ width:100%; padding:14px; font-size:16px; font-weight:700; border:2px dashed var(--orange); border-radius:12px;
     background:#FFF7EF; color:#C75B00; cursor:pointer; }
   /* ---------- totals ---------- */
   .trow{ display:flex; justify-content:space-between; font-size:16px; padding:6px 0; }
   .trow.grand{ border-top:2px solid var(--navy); margin-top:6px; padding-top:10px; font-size:21px; font-weight:800; color:var(--navy); }
-  .igvrow{ display:flex; align-items:center; justify-content:space-between; padding:8px 0; }
-  .switch{ position:relative; width:60px; height:34px; flex:none; }
-  .switch input{ opacity:0; width:0; height:0; }
-  .track{ position:absolute; inset:0; background:#C9D3DE; border-radius:34px; transition:.2s; cursor:pointer; }
-  .track:before{ content:''; position:absolute; width:27px; height:27px; left:3.5px; top:3.5px; background:#fff; border-radius:50%; transition:.2s; }
-  .switch input:checked + .track{ background:var(--orange); }
-  .switch input:checked + .track:before{ transform:translateX(26px); }
+  .inclnote{ font-size:12.5px; color:var(--mut); margin-top:2px; }
   /* ---------- action buttons ---------- */
   .actions{ margin-top:14px; display:flex; flex-direction:column; gap:10px; }
   .bigbtn{ width:100%; padding:16px; font-size:18px; font-weight:800; border:none; border-radius:14px; cursor:pointer; color:#fff; }
@@ -72,20 +73,33 @@
     #doc .d-head img{ width:78px; height:78px; border-radius:10px; }
     #doc .d-head h1{ font-size:21px; color:#0B2A4A; }
     #doc .d-head .sub{ color:#FF7A00; font-weight:700; font-size:14px; }
-    #doc .d-head p{ font-size:11.5px; color:#333; line-height:1.45; }
-    #doc .d-num{ margin-left:auto; text-align:right; flex:none; }
-    #doc .d-num .n{ font-size:22px; font-weight:800; color:#FF7A00; }
-    #doc .d-num span{ font-size:11px; color:#555; text-transform:uppercase; letter-spacing:.4px; }
-    #doc .d-cust{ margin:14px 0 6px; font-size:13px; line-height:1.6; }
-    #doc .d-cust b{ color:#0B2A4A; }
-    #doc table{ width:100%; border-collapse:collapse; margin-top:10px; }
-    #doc th{ background:#0B2A4A; color:#fff; padding:8px; font-size:12px; text-align:left; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-    #doc td{ padding:8px; border-bottom:1px solid #D8DEE6; font-size:13px; vertical-align:top; }
+    #doc .d-head p{ font-size:11.5px; color:#333; line-height:1.5; }
+    #doc .d-box{ margin-left:auto; flex:none; border:2px solid #0B2A4A; border-radius:8px; overflow:hidden; text-align:center; min-width:178px; }
+    #doc .d-box .ruc{ font-size:14px; font-weight:800; color:#0B2A4A; padding:6px 8px 2px; }
+    #doc .d-box .band{ background:#0B2A4A; color:#fff; font-weight:800; font-size:14px; letter-spacing:1.5px; padding:5px 8px;
+      -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    #doc .d-box .num{ font-size:19px; font-weight:800; color:#FF7A00; padding:5px 8px 7px; }
+    #doc table.meta{ width:100%; border-collapse:collapse; margin-top:12px; }
+    #doc table.meta td{ border:1px solid #D8DEE6; padding:5px 9px; font-size:12px; line-height:1.55; vertical-align:top; }
+    #doc table.meta b{ color:#0B2A4A; }
+    #doc table.items{ width:100%; border-collapse:collapse; margin-top:12px; }
+    #doc table.items th{ background:#0B2A4A; color:#fff; padding:8px; font-size:12px; text-align:left; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    #doc table.items td{ padding:7px 8px; border-bottom:1px solid #D8DEE6; font-size:12.5px; vertical-align:middle; }
+    #doc table.items td img{ width:44px; height:44px; object-fit:cover; border-radius:4px; display:block; margin:0 auto; }
     #doc .r{ text-align:right; } #doc .c{ text-align:center; }
-    #doc .d-tot{ margin-top:12px; margin-left:auto; width:250px; }
-    #doc .d-tot .trow{ font-size:13.5px; }
-    #doc .d-tot .grand{ font-size:17px; }
-    #doc .d-extra{ margin-top:18px; font-size:12.5px; line-height:1.6; }
+    #doc .d-wordsrow{ display:flex; justify-content:space-between; align-items:flex-end; gap:14px; margin-top:12px; }
+    #doc .d-words{ font-weight:800; font-size:12.5px; color:#0B2A4A; }
+    #doc .d-note{ font-size:10.5px; color:#B00020; text-align:right; flex:none; }
+    #doc .d-bottom{ display:flex; gap:16px; margin-top:14px; align-items:flex-start; }
+    #doc .d-bank{ flex:1; border:1.5px solid #0B2A4A; border-radius:8px; padding:10px 12px; font-size:12.5px; line-height:1.6; }
+    #doc .d-bank .bk{ font-size:17px; font-weight:800; color:#0B2A4A; }
+    #doc .d-tot{ width:272px; flex:none; margin-left:auto; }
+    #doc .d-tot .trow{ font-size:13.5px; padding:0; margin-bottom:3px; border:1px solid #D8DEE6; }
+    #doc .d-tot .trow span{ background:#0B2A4A; color:#fff; font-weight:700; padding:5px 9px; flex:1;
+      -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    #doc .d-tot .trow b{ padding:5px 9px; min-width:104px; text-align:right; }
+    #doc .d-tot .grand{ font-size:15.5px; border:1.5px solid #0B2A4A; }
+    #doc .d-tot .grand span{ background:#FF7A00; }
     #doc .d-foot{ margin-top:26px; border-top:2px solid #FF7A00; padding-top:10px; text-align:center; font-size:12.5px; color:#333; }
     #doc .d-foot b{ color:#0B2A4A; font-size:14px; }
   }
@@ -100,7 +114,7 @@
       <h1>Ricardo Fernández Electric</h1>
       <div class="sub">Alequi Electric</div>
       <p>Av. Argentina N° 215, Psje 2 – Stand Z-11, CC. Nicolini, Las Malvinas, Lima, Perú<br>
-      WhatsApp: 993 893 918 &nbsp;·&nbsp; Correo: info@alequielectric.store</p>
+      Tel/WhatsApp: 993 893 918 – 972 248 208 &nbsp;·&nbsp; Correo: info@alequielectric.store</p>
     </div>
   </div>
 
@@ -113,18 +127,36 @@
     <h2>🏪 Datos de la tienda</h2>
     <label>RUC de la tienda</label>
     <input type="text" id="sRuc" inputmode="numeric" maxlength="11" placeholder="Ej.: 20123456789" autocomplete="off">
+    <label>Cuenta BCP Soles (opcional, sale en el PDF)</label>
+    <input type="text" id="sBcp" inputmode="numeric" maxlength="23" placeholder="Ej.: 19123456789012" autocomplete="off">
+    <label>CCI BCP (opcional)</label>
+    <input type="text" id="sCci" inputmode="numeric" maxlength="23" placeholder="Ej.: 00219112345678901234" autocomplete="off">
   </div>
 
   <div class="card">
     <h2>👤 Datos del cliente</h2>
     <label>Nombre del cliente <span class="req">*</span></label>
     <input type="text" id="cName" placeholder="Ej.: Juan Pérez" autocomplete="off">
-    <label>Celular (para enviar por WhatsApp)</label>
+    <label>Teléfono / Celular (para enviar por WhatsApp)</label>
     <input type="tel" id="cPhone" placeholder="Ej.: 987 654 321" autocomplete="off">
     <label>Dirección (opcional)</label>
     <input type="text" id="cAddr" placeholder="Ej.: Av. Los Pinos 123, Lima" autocomplete="off">
     <label>RUC del cliente (opcional)</label>
     <input type="text" id="cRuc" inputmode="numeric" maxlength="11" placeholder="Ej.: 20123456789" autocomplete="off">
+    <label>Atención (opcional)</label>
+    <input type="text" id="cAtt" placeholder="Ej.: Sr. Carlos" autocomplete="off">
+    <label>Correo del cliente (opcional)</label>
+    <input type="text" id="cMail" placeholder="Ej.: cliente@correo.com" autocomplete="off">
+    <label>Forma de pago</label>
+    <select id="cPay">
+      <option value="Transferencia" selected>Transferencia</option>
+      <option value="Efectivo">Efectivo</option>
+      <option value="Yape">Yape</option>
+      <option value="Plin">Plin</option>
+      <option value="Tarjeta">Tarjeta</option>
+    </select>
+    <label>Referencia (opcional)</label>
+    <input type="text" id="qRef" placeholder="Ej.: Obra San Juan" autocomplete="off">
   </div>
 
   <div class="card">
@@ -135,16 +167,23 @@
 
   <div class="card">
     <h2>💰 Totales</h2>
-    <div class="trow"><span>Subtotal</span><b id="tSub">S/ 0.00</b></div>
-    <div class="igvrow">
-      <span style="font-size:16px;">Agregar IGV (18%)</span>
-      <label class="switch"><input type="checkbox" id="igvToggle"><span class="track"></span></label>
-    </div>
-    <div class="trow" id="igvRow" style="display:none;"><span>IGV (18%)</span><b id="tIgv">S/ 0.00</b></div>
+    <label style="margin-top:0;">IGV</label>
+    <select id="igvMode">
+      <option value="incl" selected>Los precios ya incluyen IGV</option>
+      <option value="add">Agregar IGV (18%)</option>
+      <option value="none">Sin IGV</option>
+    </select>
+    <div class="inclnote" id="inclNote">Los precios unitarios incluyen IGV.</div>
+    <div class="trow" style="margin-top:8px;"><span>Subtotal</span><b id="tSub">S/ 0.00</b></div>
+    <div class="trow" id="igvRow"><span>IGV (18%)</span><b id="tIgv">S/ 0.00</b></div>
     <div class="trow grand"><span>TOTAL</span><span id="tTotal">S/ 0.00</span></div>
+    <label>Tiempo de entrega</label>
+    <input type="text" id="qTime" value="Inmediato">
+    <label>Lugar de entrega</label>
+    <input type="text" id="qPlace" value="En tienda">
     <label>Validez de la cotización</label>
     <input type="text" id="qValid" value="7 días">
-    <label>Notas (opcional)</label>
+    <label>Observaciones (opcional)</label>
     <textarea id="qNotes" placeholder="Ej.: Precios incluyen delivery, pago contra entrega…"></textarea>
   </div>
 
@@ -165,48 +204,71 @@
       <h1>Ricardo Fernández Electric</h1>
       <div class="sub">Alequi Electric</div>
       <p>Av. Argentina N° 215, Psje 2 – Stand Z-11, CC. Nicolini, Las Malvinas, Lima, Perú<br>
-      WhatsApp: 993 893 918 &nbsp;·&nbsp; Correo: info@alequielectric.store<span id="dStoreRuc"></span></p>
+      Tel/WhatsApp: 993 893 918 – 972 248 208 &nbsp;·&nbsp; Correo: info@alequielectric.store</p>
     </div>
-    <div class="d-num">
-      <span>Cotización</span>
-      <div class="n">N° <span id="dNum">001</span></div>
-      <span>Fecha</span>
-      <div style="font-weight:700; font-size:14px;" id="dDate">—</div>
+    <div class="d-box">
+      <div class="ruc" id="dBoxRuc" style="display:none;"></div>
+      <div class="band">COTIZACIÓN</div>
+      <div class="num">N° <span id="dNum">001</span></div>
     </div>
   </div>
 
-  <div class="d-cust" id="dCust"></div>
+  <table class="meta">
+    <tr>
+      <td style="width:55%;" id="dCustL"></td>
+      <td id="dCustR"></td>
+    </tr>
+  </table>
 
-  <table>
+  <table class="meta" style="margin-top:6px;">
+    <tr>
+      <td style="width:55%;" id="dTermsL"></td>
+      <td id="dTermsR"></td>
+    </tr>
+    <tr id="dObsRow" style="display:none;">
+      <td colspan="2" id="dObs"></td>
+    </tr>
+  </table>
+
+  <table class="items">
     <thead>
-      <tr><th style="width:34px;">#</th><th>Descripción</th><th class="c" style="width:64px;">Cant.</th>
-      <th class="r" style="width:96px;">P. Unit.</th><th class="r" style="width:106px;">Importe</th></tr>
+      <tr><th class="c" style="width:34px;">ÍTEM</th><th>DESCRIPCIÓN</th><th class="c" style="width:58px;">IMAGEN</th>
+      <th class="c" style="width:44px;">UM</th><th class="c" style="width:56px;">CANT.</th>
+      <th class="r" style="width:92px;">PRECIO</th><th class="r" style="width:102px;">TOTAL</th></tr>
     </thead>
     <tbody id="dBody"></tbody>
   </table>
 
-  <div class="d-tot">
-    <div class="trow"><span>Subtotal</span><b id="dSub">S/ 0.00</b></div>
-    <div class="trow" id="dIgvRow" style="display:none;"><span>IGV (18%)</span><b id="dIgv">S/ 0.00</b></div>
-    <div class="trow grand"><span>TOTAL</span><span id="dTotal">S/ 0.00</span></div>
+  <div class="d-wordsrow">
+    <div class="d-words" id="dWords"></div>
+    <div class="d-note" id="dNote" style="display:none;">Los precios unitarios de los productos INCLUYEN IGV</div>
   </div>
 
-  <div class="d-extra" id="dExtra"></div>
+  <div class="d-bottom">
+    <div class="d-bank" id="dBank" style="display:none;"></div>
+    <div class="d-tot">
+      <div class="trow"><span>SUB TOTAL</span><b id="dSub">S/ 0.00</b></div>
+      <div class="trow" id="dIgvRow"><span>IGV 18%</span><b id="dIgv">S/ 0.00</b></div>
+      <div class="trow grand"><span>TOTAL GENERAL</span><b id="dTotal">S/ 0.00</b></div>
+    </div>
+  </div>
 
   <div class="d-foot">
     <b>¡Gracias por su preferencia!</b><br>
-    Ricardo Fernández Electric — Alequi Electric · WhatsApp: 993 893 918
+    Ricardo Fernández Electric — Alequi Electric · Tel/WhatsApp: 993 893 918 – 972 248 208
   </div>
 </div>
 
 <script>
 'use strict';
 /* ================= state ================= */
-var LS_NUM = 'aq_cot_num', LS_DRAFT = 'aq_cot_draft', LS_RUC = 'aq_cot_store_ruc';
+var LS_NUM = 'aq_cot_num', LS_DRAFT = 'aq_cot_draft', LS_RUC = 'aq_cot_store_ruc',
+    LS_BCP = 'aq_cot_store_bcp', LS_CCI = 'aq_cot_store_cci';
 var num = parseInt(localStorage.getItem(LS_NUM) || '1', 10);
 if (isNaN(num) || num < 1) num = 1;
-var items = [ {desc:'', qty:1, price:''} ];
-var igvOn = false;
+var items = [ {desc:'', qty:1, price:'', um:'UN', img:''} ];
+var igvMode = 'incl';
+var UM_OPTS = ['UN','ROLLO','MT','CAJA','SET','GLB'];
 
 function $(id){ return document.getElementById(id); }
 function pad3(n){ n = String(n); while (n.length < 3) n = '0' + n; return n; }
@@ -224,19 +286,69 @@ function esc(s){
   return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 function pnum(v){ var n = parseFloat(v); return isNaN(n) ? 0 : n; }
+function r2(n){ return Math.round(n * 100) / 100; }
 function rucVal(id){ return ($(id).value || '').replace(/\D/g, '').slice(0, 11); }
 
+/* ================= número a letras (español) ================= */
+var UNIDADES = ['','UNO','DOS','TRES','CUATRO','CINCO','SEIS','SIETE','OCHO','NUEVE','DIEZ','ONCE','DOCE','TRECE',
+  'CATORCE','QUINCE','DIECISÉIS','DIECISIETE','DIECIOCHO','DIECINUEVE','VEINTE','VEINTIUNO','VEINTIDÓS','VEINTITRÉS',
+  'VEINTICUATRO','VEINTICINCO','VEINTISÉIS','VEINTISIETE','VEINTIOCHO','VEINTINUEVE'];
+var DECENAS = ['','','','TREINTA','CUARENTA','CINCUENTA','SESENTA','SETENTA','OCHENTA','NOVENTA'];
+var CENTENAS = ['','CIENTO','DOSCIENTOS','TRESCIENTOS','CUATROCIENTOS','QUINIENTOS','SEISCIENTOS','SETECIENTOS','OCHOCIENTOS','NOVECIENTOS'];
+function letrasMenor1000(n){
+  if (n === 0) return '';
+  if (n === 100) return 'CIEN';
+  var out = '', c = Math.floor(n / 100), r = n % 100;
+  if (c) out = CENTENAS[c];
+  if (r){
+    if (out) out += ' ';
+    if (r < 30) out += UNIDADES[r];
+    else {
+      var d = Math.floor(r / 10), u = r % 10;
+      out += DECENAS[d];
+      if (u) out += ' Y ' + UNIDADES[u];
+    }
+  }
+  return out;
+}
+function numeroLetras(n){
+  n = Math.floor(Math.abs(n));
+  if (n === 0) return 'CERO';
+  var miles = Math.floor(n / 1000), resto = n % 1000, out = '';
+  if (miles) out = (miles === 1) ? 'MIL' : letrasMenor1000(miles) + ' MIL';
+  if (resto){ if (out) out += ' '; out += letrasMenor1000(resto); }
+  return out;
+}
+function totalEnLetras(total){
+  var c = Math.round(total * 100), e = Math.floor(c / 100), cc = c % 100;
+  return numeroLetras(e) + ' CON ' + (cc < 10 ? '0' + cc : cc) + '/100 SOLES';
+}
+
 /* ================= items ================= */
+function umSelect(it, i){
+  var cur = UM_OPTS.indexOf(it.um) >= 0 ? it.um : 'UN', h = '<select onchange="upd(' + i + ',\'um\',this.value)">';
+  for (var k = 0; k < UM_OPTS.length; k++)
+    h += '<option value="' + UM_OPTS[k] + '"' + (UM_OPTS[k] === cur ? ' selected' : '') + '>' + UM_OPTS[k] + '</option>';
+  return h + '</select>';
+}
 function rowHTML(it, i){
+  it.um = UM_OPTS.indexOf(it.um) >= 0 ? it.um : 'UN';
+  it.img = it.img || '';
+  var photo = it.img
+    ? '<img class="thumb" src="' + it.img + '" alt="">' +
+      '<button class="phdel" type="button" onclick="delPhoto(' + i + ')">✕ Quitar foto</button>'
+    : '<label class="phbtn">📷 Foto (opcional)<input type="file" accept="image/*" style="display:none" onchange="pickPhoto(' + i + ',this)"></label>';
   return '<div class="item">' +
     '<button class="del" type="button" onclick="delItem(' + i + ')" aria-label="Quitar">✕</button>' +
     '<div class="desc"><label style="margin-top:0;">Descripción</label>' +
     '<input type="text" placeholder="Ej.: Cable THW-90 12 AWG x 100 m" value="' + esc(it.desc) + '" oninput="upd(' + i + ',\'desc\',this.value)"></div>' +
     '<div class="row3">' +
+      '<div class="um"><label>UM</label>' + umSelect(it, i) + '</div>' +
       '<div><label>Cantidad</label><input type="number" min="0" step="any" inputmode="decimal" value="' + esc(it.qty) + '" oninput="upd(' + i + ',\'qty\',this.value)"></div>' +
       '<div><label>Precio unit. (S/)</label><input type="number" min="0" step="0.01" inputmode="decimal" placeholder="0.00" value="' + esc(it.price) + '" oninput="upd(' + i + ',\'price\',this.value)"></div>' +
       '<div><label>Importe</label><div class="imp" id="imp-' + i + '">' + fmt(pnum(it.qty) * pnum(it.price)) + '</div></div>' +
-    '</div></div>';
+    '</div>' +
+    '<div class="photorow">' + photo + '</div></div>';
 }
 function renderItems(){
   $('items').innerHTML = items.map(rowHTML).join('');
@@ -248,28 +360,75 @@ function upd(i, field, val){
   recalc(); saveDraft();
 }
 function addItem(){
-  items.push({desc:'', qty:'1', price:''});
+  items.push({desc:'', qty:'1', price:'', um:'UN', img:''});
   renderItems(); recalc(); saveDraft();
 }
 function delItem(i){
-  if (items.length === 1){ items[0] = {desc:'', qty:'1', price:''}; }
+  if (items.length === 1){ items[0] = {desc:'', qty:'1', price:'', um:'UN', img:''}; }
   else { items.splice(i, 1); }
   renderItems(); recalc(); saveDraft();
+}
+function pickPhoto(i, input){
+  var f = input.files && input.files[0];
+  if (!f) return;
+  var rd = new FileReader();
+  rd.onload = function(){
+    var img = new Image();
+    img.onload = function(){
+      var max = 220, w = img.width, h = img.height, sc = Math.min(1, max / Math.max(w, h));
+      var cv = document.createElement('canvas');
+      cv.width = Math.max(1, Math.round(w * sc)); cv.height = Math.max(1, Math.round(h * sc));
+      cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+      try { items[i].img = cv.toDataURL('image/jpeg', 0.72); } catch (e) { items[i].img = ''; }
+      renderItems(); saveDraft();
+    };
+    img.src = rd.result;
+  };
+  rd.readAsDataURL(f);
+}
+function delPhoto(i){
+  items[i].img = '';
+  renderItems(); saveDraft();
 }
 
 /* ================= totals ================= */
 function calc(){
-  var sub = 0;
-  for (var i = 0; i < items.length; i++) sub += pnum(items[i].qty) * pnum(items[i].price);
-  var igv = igvOn ? sub * 0.18 : 0;
-  return { sub: sub, igv: igv, total: sub + igv };
+  var sum = 0;
+  for (var i = 0; i < items.length; i++) sum += pnum(items[i].qty) * pnum(items[i].price);
+  sum = r2(sum);
+  if (igvMode === 'incl'){
+    var igvI = r2(sum - r2(sum / 1.18));
+    return { sub: r2(sum - igvI), igv: igvI, total: sum };
+  }
+  if (igvMode === 'add'){
+    var igvA = r2(sum * 0.18);
+    return { sub: sum, igv: igvA, total: r2(sum + igvA) };
+  }
+  return { sub: sum, igv: 0, total: sum };
 }
 function recalc(){
   var t = calc();
   $('tSub').textContent = fmt(t.sub);
-  $('igvRow').style.display = igvOn ? '' : 'none';
+  $('igvRow').style.display = igvMode === 'none' ? 'none' : '';
   $('tIgv').textContent = fmt(t.igv);
   $('tTotal').textContent = fmt(t.total);
+  $('inclNote').style.display = igvMode === 'incl' ? '' : 'none';
+}
+
+/* ================= store data (persistente) ================= */
+function persistStore(){
+  try {
+    localStorage.setItem(LS_RUC, rucVal('sRuc'));
+    localStorage.setItem(LS_BCP, $('sBcp').value.trim());
+    localStorage.setItem(LS_CCI, $('sCci').value.trim());
+  } catch (e) {}
+}
+function loadStore(){
+  try {
+    $('sRuc').value = localStorage.getItem(LS_RUC) || '';
+    $('sBcp').value = localStorage.getItem(LS_BCP) || '';
+    $('sCci').value = localStorage.getItem(LS_CCI) || '';
+  } catch (e) {}
 }
 
 /* ================= draft ================= */
@@ -277,7 +436,9 @@ function saveDraft(){
   try {
     localStorage.setItem(LS_DRAFT, JSON.stringify({
       name: $('cName').value, phone: $('cPhone').value, addr: $('cAddr').value, cru: $('cRuc').value,
-      valid: $('qValid').value, notes: $('qNotes').value, igv: igvOn, items: items
+      att: $('cAtt').value, mail: $('cMail').value, pay: $('cPay').value, ref: $('qRef').value,
+      time: $('qTime').value, place: $('qPlace').value, valid: $('qValid').value, notes: $('qNotes').value,
+      mode: igvMode, items: items
     }));
   } catch (e) {}
 }
@@ -286,8 +447,13 @@ function loadDraft(){
     var d = JSON.parse(localStorage.getItem(LS_DRAFT) || 'null');
     if (!d) return;
     $('cName').value = d.name || ''; $('cPhone').value = d.phone || ''; $('cAddr').value = d.addr || ''; $('cRuc').value = d.cru || '';
+    $('cAtt').value = d.att || ''; $('cMail').value = d.mail || ''; $('qRef').value = d.ref || '';
+    if (d.pay) $('cPay').value = d.pay;
+    $('qTime').value = d.time || 'Inmediato'; $('qPlace').value = d.place || 'En tienda';
     $('qValid').value = d.valid || '7 días'; $('qNotes').value = d.notes || '';
-    igvOn = !!d.igv; $('igvToggle').checked = igvOn;
+    if (d.mode) igvMode = d.mode;
+    else if (typeof d.igv !== 'undefined') igvMode = d.igv ? 'add' : 'none';
+    $('igvMode').value = igvMode;
     if (Array.isArray(d.items) && d.items.length) items = d.items;
   } catch (e) {}
 }
@@ -299,30 +465,60 @@ function validItems(){
 function buildDoc(){
   var t = calc(), vi = validItems();
   $('dNum').textContent = pad3(num);
-  $('dDate').textContent = fecha;
   var sruc = rucVal('sRuc');
-  $('dStoreRuc').innerHTML = sruc ? '<br>RUC: ' + esc(sruc) : '';
-  var c = '<b>Cliente:</b> ' + esc($('cName').value);
-  if ($('cPhone').value.trim()) c += '<br><b>Celular:</b> ' + esc($('cPhone').value);
-  if ($('cAddr').value.trim()) c += '<br><b>Dirección:</b> ' + esc($('cAddr').value);
+  $('dBoxRuc').style.display = sruc ? '' : 'none';
+  $('dBoxRuc').textContent = sruc ? 'RUC: ' + sruc : '';
+  /* cliente — izquierda */
+  var L = '<b>Señores:</b> ' + esc($('cName').value);
+  if ($('cAddr').value.trim()) L += '<br><b>Dirección:</b> ' + esc($('cAddr').value);
   var cru = rucVal('cRuc');
-  if (cru) c += '<br><b>RUC:</b> ' + esc(cru);
-  $('dCust').innerHTML = c;
+  if (cru) L += '<br><b>RUC:</b> ' + esc(cru);
+  if ($('cPhone').value.trim()) L += '<br><b>Teléfono:</b> ' + esc($('cPhone').value);
+  if ($('cAtt').value.trim()) L += '<br><b>Atención:</b> ' + esc($('cAtt').value);
+  if ($('cMail').value.trim()) L += '<br><b>Correo:</b> ' + esc($('cMail').value);
+  $('dCustL').innerHTML = L;
+  /* cliente — derecha */
+  var R = '<b>Fecha:</b> ' + esc(fecha) + '<br><b>Moneda:</b> Soles<br><b>Forma de pago:</b> ' + esc($('cPay').value);
+  if ($('qRef').value.trim()) R += '<br><b>Referencia:</b> ' + esc($('qRef').value);
+  $('dCustR').innerHTML = R;
+  /* condiciones */
+  $('dTermsL').innerHTML = '<b>Tiempo de entrega:</b> ' + esc($('qTime').value || 'Inmediato') +
+    '<br><b>Lugar de entrega:</b> ' + esc($('qPlace').value || 'En tienda');
+  $('dTermsR').innerHTML = '<b>Validez de la oferta:</b> ' + esc($('qValid').value || '7 días');
+  var hasObs = !!$('qNotes').value.trim();
+  $('dObsRow').style.display = hasObs ? '' : 'none';
+  $('dObs').innerHTML = hasObs ? '<b>Observaciones:</b> ' + esc($('qNotes').value).replace(/\n/g, '<br>') : '';
+  /* ítems */
   var rows = '';
   for (var i = 0; i < vi.length; i++){
-    var it = vi[i], imp = pnum(it.qty) * pnum(it.price);
+    var it = vi[i], imp = r2(pnum(it.qty) * pnum(it.price));
     rows += '<tr><td class="c">' + (i + 1) + '</td><td>' + esc(it.desc) + '</td>' +
+      '<td class="c">' + (it.img ? '<img src="' + it.img + '" alt="">' : '') + '</td>' +
+      '<td class="c">' + esc(UM_OPTS.indexOf(it.um) >= 0 ? it.um : 'UN') + '</td>' +
       '<td class="c">' + esc(it.qty) + '</td><td class="r">' + fmt(pnum(it.price)) + '</td>' +
       '<td class="r">' + fmt(imp) + '</td></tr>';
   }
   $('dBody').innerHTML = rows;
+  /* total en letras + nota IGV */
+  $('dWords').textContent = 'SON: ' + totalEnLetras(t.total);
+  $('dNote').style.display = igvMode === 'incl' ? '' : 'none';
+  /* banco — solo BCP */
+  var bcp = $('sBcp').value.trim(), cci = $('sCci').value.trim();
+  if (bcp || cci){
+    var parts = [];
+    if (bcp) parts.push('SOLES: ' + esc(bcp));
+    if (cci) parts.push('CCI: ' + esc(cci));
+    $('dBank').innerHTML = '<span class="bk">BCP</span><br>' + parts.join(' &nbsp;·&nbsp; ');
+    $('dBank').style.display = '';
+  } else {
+    $('dBank').innerHTML = '';
+    $('dBank').style.display = 'none';
+  }
+  /* totales */
   $('dSub').textContent = fmt(t.sub);
-  $('dIgvRow').style.display = igvOn ? '' : 'none';
+  $('dIgvRow').style.display = igvMode === 'none' ? 'none' : '';
   $('dIgv').textContent = fmt(t.igv);
   $('dTotal').textContent = fmt(t.total);
-  var ex = '<b>Validez de la cotización:</b> ' + esc($('qValid').value || '7 días');
-  if ($('qNotes').value.trim()) ex += '<br><b>Notas:</b> ' + esc($('qNotes').value).replace(/\n/g, '<br>');
-  $('dExtra').innerHTML = ex;
 }
 
 /* ================= actions ================= */
@@ -351,6 +547,7 @@ function sendWA(){
   var cru2 = rucVal('cRuc');
   if (cru2) lines.push('RUC cliente: ' + cru2);
   lines.push('Fecha: ' + fecha);
+  lines.push('Forma de pago: ' + $('cPay').value);
   lines.push('');
   for (var i = 0; i < vi.length; i++){
     var it = vi[i];
@@ -358,7 +555,7 @@ function sendWA(){
   }
   lines.push('');
   lines.push('Subtotal: ' + fmt(t.sub));
-  if (igvOn) lines.push('IGV (18%): ' + fmt(t.igv));
+  if (igvMode !== 'none') lines.push('IGV (18%): ' + fmt(t.igv));
   lines.push('*TOTAL: ' + fmt(t.total) + '*');
   lines.push('Validez: ' + ($('qValid').value.trim() || '7 días'));
   lines.push('');
@@ -370,9 +567,11 @@ function newQuote(){
   num += 1;
   try { localStorage.setItem(LS_NUM, String(num)); localStorage.removeItem(LS_DRAFT); } catch (e) {}
   $('cName').value = ''; $('cPhone').value = ''; $('cAddr').value = ''; $('cRuc').value = '';
+  $('cAtt').value = ''; $('cMail').value = ''; $('qRef').value = ''; $('cPay').value = 'Transferencia';
+  $('qTime').value = 'Inmediato'; $('qPlace').value = 'En tienda';
   $('qNotes').value = ''; $('qValid').value = '7 días';
-  igvOn = false; $('igvToggle').checked = false;
-  items = [ {desc:'', qty:'1', price:''} ];
+  igvMode = 'incl'; $('igvMode').value = 'incl';
+  items = [ {desc:'', qty:'1', price:'', um:'UN', img:''} ];
   fecha = todayStr();
   $('qNum').textContent = pad3(num);
   $('qDate').textContent = fecha;
@@ -382,17 +581,16 @@ function newQuote(){
 /* ================= init ================= */
 $('qNum').textContent = pad3(num);
 $('qDate').textContent = fecha;
-try { $('sRuc').value = localStorage.getItem(LS_RUC) || ''; } catch (e) {}
-$('sRuc').addEventListener('input', function(){
-  try { localStorage.setItem(LS_RUC, rucVal('sRuc')); } catch (e) {}
-});
+loadStore();
+['sRuc','sBcp','sCci'].forEach(function(id){ $(id).addEventListener('input', persistStore); });
 loadDraft();
 renderItems();
 recalc();
-['cName','cPhone','cAddr','cRuc','qValid','qNotes'].forEach(function(id){
+['cName','cPhone','cAddr','cRuc','cAtt','cMail','qRef','qTime','qPlace','qValid','qNotes'].forEach(function(id){
   $(id).addEventListener('input', saveDraft);
 });
-$('igvToggle').addEventListener('change', function(){ igvOn = this.checked; recalc(); saveDraft(); });
+$('cPay').addEventListener('change', saveDraft);
+$('igvMode').addEventListener('change', function(){ igvMode = this.value; recalc(); saveDraft(); });
 $('addBtn').addEventListener('click', addItem);
 $('pdfBtn').addEventListener('click', printQuote);
 $('waBtn').addEventListener('click', sendWA);
