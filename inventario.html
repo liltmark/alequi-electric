@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventario — Alequi Electric</title>
+<link rel="icon" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+  :root{ --navy:#0B2A4A; --orange:#FF7A00; --bg:#EEF1F5; --card:#FFFFFF; --ink:#1B2733; --mut:#5A6B7B; --line:#D8DEE6; --red:#C62828; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ font-family:-apple-system,'Segoe UI',Roboto,Arial,sans-serif; background:var(--bg); color:var(--ink); padding:12px; }
+  .wrap{ max-width:640px; margin:0 auto; }
+  /* ---------- header ---------- */
+  .brand{ background:var(--navy); color:#fff; border-radius:14px; padding:16px; display:flex; gap:14px; align-items:center; }
+  .brand img{ width:74px; height:74px; border-radius:12px; background:#fff; object-fit:cover; flex:none; }
+  .brand h1{ font-size:20px; line-height:1.15; }
+  .brand .sub{ color:var(--orange); font-weight:700; font-size:15px; margin:2px 0 4px; }
+  .brand p{ font-size:12.5px; line-height:1.45; color:#D7E1EC; }
+  .meta{ display:flex; gap:10px; margin-top:12px; }
+  .meta .box{ flex:1; background:var(--card); border:1px solid var(--line); border-radius:12px; padding:10px 12px; text-align:center; }
+  .meta .box span{ display:block; font-size:12px; color:var(--mut); text-transform:uppercase; letter-spacing:.4px; }
+  .meta .box b{ font-size:19px; color:var(--navy); }
+  .meta .box.alert b{ color:var(--red); }
+  /* ---------- cards & fields ---------- */
+  .card{ background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin-top:12px; }
+  .card h2{ font-size:16px; color:var(--navy); margin-bottom:10px; }
+  label{ display:block; font-size:13.5px; font-weight:600; color:var(--mut); margin:10px 0 5px; }
+  label:first-of-type{ margin-top:0; }
+  input[type=text], input[type=number], input[type=tel], input[type=search], textarea, select{
+    width:100%; font-size:16px; padding:12px; border:1.5px solid var(--line); border-radius:10px; background:#FBFCFE; color:var(--ink);
+  }
+  input:focus, textarea:focus, select:focus{ outline:none; border-color:var(--orange); background:#fff; }
+  .req{ color:#D33; }
+  .row2{ display:flex; gap:8px; }
+  .row2 > div{ flex:1; }
+  .row2 label{ margin-top:10px; }
+  /* ---------- products ---------- */
+  .prod{ border:1.5px solid var(--line); border-radius:12px; padding:12px; margin-bottom:12px; background:#FBFCFE; position:relative; }
+  .prod.low{ border-color:var(--orange); background:#FFF9F2; }
+  .prod.out{ border-color:#E5B4B4; background:#FFF5F5; }
+  .prod .pname{ font-size:16px; font-weight:700; color:var(--navy); padding-right:40px; line-height:1.3; }
+  .prod .pinfo{ font-size:12.5px; color:var(--mut); margin-top:2px; }
+  .prod .del{ position:absolute; top:8px; right:8px; width:34px; height:34px; border:none; border-radius:50%;
+    background:#FDECEC; color:#C62828; font-size:15px; font-weight:700; cursor:pointer; }
+  .badge{ display:inline-block; font-size:12px; font-weight:800; padding:3px 9px; border-radius:20px; margin-top:6px; }
+  .badge-low{ background:#FFE3C2; color:#9A4E00; }
+  .badge-out{ background:#FAD4D4; color:var(--red); }
+  .prow{ display:flex; align-items:center; gap:10px; margin-top:10px; }
+  .stockbig{ font-size:34px; font-weight:800; color:var(--navy); line-height:1; min-width:74px; text-align:center;
+    background:#EEF3F9; border-radius:10px; padding:8px 4px; }
+  .stockbig small{ display:block; font-size:10.5px; font-weight:700; color:var(--mut); letter-spacing:.4px; margin-top:3px; }
+  .prod.low .stockbig{ background:#FFE3C2; }
+  .prod.out .stockbig{ background:#FAD4D4; color:var(--red); }
+  .qbtn{ flex:1; padding:13px 6px; font-size:16px; font-weight:800; border:none; border-radius:11px; cursor:pointer; color:#fff; }
+  .qbtn.minus{ background:var(--orange); }
+  .qbtn.plus{ background:#22A95C; }
+  .movbtn{ width:100%; margin-top:9px; padding:11px; font-size:14.5px; font-weight:700; border:1.5px solid var(--navy);
+    border-radius:10px; background:#fff; color:var(--navy); cursor:pointer; }
+  .movpanel{ display:none; margin-top:10px; border-top:1.5px dashed var(--line); padding-top:10px; }
+  .movpanel.open{ display:block; }
+  .applybtn{ width:100%; margin-top:9px; padding:12px; font-size:15px; font-weight:800; border:none; border-radius:10px;
+    background:var(--navy); color:#fff; cursor:pointer; }
+  .empty{ text-align:center; color:var(--mut); font-size:14.5px; padding:18px 8px; line-height:1.55; }
+  /* ---------- history ---------- */
+  .hist{ border-bottom:1px solid var(--line); padding:8px 2px; font-size:13.5px; line-height:1.45; }
+  .hist:last-child{ border-bottom:none; }
+  .hist .hwhen{ color:var(--mut); font-size:12px; }
+  .hist .ht{ font-weight:800; }
+  .ht-in{ color:#1E7D43; } .ht-out{ color:#C75B00; } .ht-set{ color:var(--navy); } .ht-new{ color:#1E7D43; }
+  /* ---------- action buttons ---------- */
+  .addbtn{ width:100%; padding:14px; font-size:16px; font-weight:700; border:2px dashed var(--orange); border-radius:12px;
+    background:#FFF7EF; color:#C75B00; cursor:pointer; margin-top:12px; }
+  .actions{ margin-top:14px; display:flex; flex-direction:column; gap:10px; }
+  .bigbtn{ width:100%; padding:16px; font-size:18px; font-weight:800; border:none; border-radius:14px; cursor:pointer; color:#fff; }
+  .b-pdf{ background:var(--orange); }
+  .b-wa{ background:#22A95C; }
+  .hint{ font-size:13px; color:var(--mut); text-align:center; margin-top:10px; line-height:1.5; }
+  /* ---------- print document ---------- */
+  #doc{ display:none; }
+  @page{ size:A4; margin:11mm; }
+  @media print{
+    body{ background:#fff; padding:0; }
+    .screen{ display:none !important; }
+    #doc{ display:block !important; color:#000; font-size:13px; }
+    #doc .d-head{ display:flex; gap:14px; align-items:center; border-bottom:3px solid #0B2A4A; padding-bottom:10px; }
+    #doc .d-head img{ width:78px; height:78px; border-radius:10px; }
+    #doc .d-head h1{ font-size:21px; color:#0B2A4A; }
+    #doc .d-head .sub{ color:#FF7A00; font-weight:700; font-size:14px; }
+    #doc .d-head p{ font-size:11.5px; color:#333; line-height:1.5; }
+    #doc .d-box{ margin-left:auto; flex:none; border:2px solid #0B2A4A; border-radius:8px; overflow:hidden; text-align:center; min-width:178px; }
+    #doc .d-box .band{ background:#0B2A4A; color:#fff; font-weight:800; font-size:14px; letter-spacing:1.5px; padding:5px 8px;
+      -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    #doc .d-box .num{ font-size:13px; font-weight:700; color:#0B2A4A; padding:6px 8px 7px; }
+    #doc table.items{ width:100%; border-collapse:collapse; margin-top:12px; }
+    #doc table.items th{ background:#0B2A4A; color:#fff; padding:8px; font-size:12px; text-align:left; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    #doc table.items td{ padding:7px 8px; border-bottom:1px solid #D8DEE6; font-size:12.5px; vertical-align:middle; }
+    #doc .r{ text-align:right; } #doc .c{ text-align:center; }
+    #doc .d-foot{ margin-top:26px; border-top:2px solid #FF7A00; padding-top:10px; text-align:center; font-size:12.5px; color:#333; }
+    #doc .d-foot b{ color:#0B2A4A; font-size:14px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap screen">
+
+  <div class="brand">
+    <img src="apple-touch-icon.png" alt="Alequi Electric">
+    <div>
+      <h1>Ricardo Fernández Electric</h1>
+      <div class="sub">Alequi Electric</div>
+      <p>Av. Argentina N° 215, Psje 2 – Stand Z-11, CC. Nicolini, Las Malvinas, Lima, Perú<br>
+      Tel/WhatsApp: 993 893 918 – 972 248 208 &nbsp;·&nbsp; Correo: info@alequielectric.store</p>
+    </div>
+  </div>
+
+  <div class="meta">
+    <div class="box"><span>Productos</span><b id="sumProds">0</b></div>
+    <div class="box"><span>Unidades en stock</span><b id="sumUnits">0</b></div>
+    <div class="box" id="sumLowBox"><span>¡Bajo stock!</span><b id="sumLow">0</b></div>
+  </div>
+
+  <div class="card">
+    <h2>➕ Agregar producto</h2>
+    <label>Nombre / Descripción <span class="req">*</span></label>
+    <input type="text" id="pName" placeholder="Ej.: Cable THW-90 12 AWG x 100 m" autocomplete="off">
+    <div class="row2">
+      <div>
+        <label>Cantidad inicial <span class="req">*</span></label>
+        <input type="number" id="pQty" min="0" step="1" inputmode="numeric" placeholder="Ej.: 20">
+      </div>
+      <div>
+        <label>Unidad</label>
+        <select id="pUm">
+          <option value="UN" selected>UN</option>
+          <option value="ROLLO">ROLLO</option>
+          <option value="CAJA">CAJA</option>
+          <option value="MT">MT</option>
+          <option value="SET">SET</option>
+          <option value="GLB">GLB</option>
+        </select>
+      </div>
+    </div>
+    <div class="row2">
+      <div>
+        <label>Precio (S/, opcional)</label>
+        <input type="number" id="pPrice" min="0" step="0.01" inputmode="decimal" placeholder="0.00">
+      </div>
+      <div>
+        <label>Stock mínimo (aviso)</label>
+        <input type="number" id="pMin" min="0" step="1" inputmode="numeric" value="3">
+      </div>
+    </div>
+    <button class="addbtn" id="addBtn" type="button">＋ Agregar al inventario</button>
+  </div>
+
+  <div class="card">
+    <h2>📦 Mi inventario</h2>
+    <input type="search" id="q" placeholder="🔍 Buscar producto…" autocomplete="off">
+    <div id="list" style="margin-top:12px;"></div>
+  </div>
+
+  <div class="card">
+    <h2>🕘 Últimos movimientos</h2>
+    <div id="hist"></div>
+  </div>
+
+  <div class="actions">
+    <button class="bigbtn b-wa" id="waBtn" type="button">💬 Compartir resumen por WhatsApp</button>
+    <button class="bigbtn b-pdf" id="printBtn" type="button">📄 Imprimir lista de stock</button>
+  </div>
+  <p class="hint">Todo se guarda automáticamente en este teléfono.<br>
+  Cuando un producto llega al stock mínimo se marca con <b>¡Bajo stock!</b> y en cero con <b>AGOTADO</b>.</p>
+</div>
+
+<!-- ================= PRINT DOCUMENT ================= -->
+<div id="doc">
+  <div class="d-head">
+    <img src="apple-touch-icon.png" alt="">
+    <div>
+      <h1>Ricardo Fernández Electric</h1>
+      <div class="sub">Alequi Electric</div>
+      <p>Av. Argentina N° 215, Psje 2 – Stand Z-11, CC. Nicolini, Las Malvinas, Lima, Perú<br>
+      Tel/WhatsApp: 993 893 918 – 972 248 208 &nbsp;·&nbsp; Correo: info@alequielectric.store</p>
+    </div>
+    <div class="d-box">
+      <div class="band">INVENTARIO</div>
+      <div class="num" id="dDate">—</div>
+    </div>
+  </div>
+
+  <table class="items">
+    <thead>
+      <tr><th style="width:44px;" class="c">#</th><th>PRODUCTO</th><th class="c" style="width:80px;">UNIDAD</th><th class="r" style="width:110px;">STOCK</th></tr>
+    </thead>
+    <tbody id="dBody"></tbody>
+  </table>
+
+  <div class="d-foot">
+    <b>Ricardo Fernández Electric — Alequi Electric</b><br>
+    Tel/WhatsApp: 993 893 918 – 972 248 208
+  </div>
+</div>
+
+<script>
+'use strict';
+/* ================= estado ================= */
+var LS_KEY = 'alequiInventario';
+var STORE_WA = '51993893918';
+var UM_OPTS = ['UN','ROLLO','CAJA','MT','SET','GLB'];
+var data = { products: [], history: [] };
+var openMov = null;   /* id del producto con el panel de movimiento abierto */
+var lastWarn = '';    /* último aviso (para pruebas y mensajes) */
+
+function $(id){ return document.getElementById(id); }
+function esc(s){
+  return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function pnum(v){ var n = parseFloat(v); return isNaN(n) ? 0 : n; }
+function pint(v){ var n = parseInt(v, 10); return isNaN(n) ? 0 : n; }
+function fmt(n){
+  if (isNaN(n)) n = 0;
+  return 'S/ ' + n.toLocaleString('es-PE', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function nowStr(){
+  var d = new Date(), dd = d.getDate(), mm = d.getMonth() + 1, yy = d.getFullYear();
+  var hh = d.getHours(), mi = d.getMinutes();
+  return (dd < 10 ? '0' + dd : dd) + '/' + (mm < 10 ? '0' + mm : mm) + '/' + yy +
+         ' ' + (hh < 10 ? '0' + hh : hh) + ':' + (mi < 10 ? '0' + mi : mi);
+}
+function todayStr(){
+  var d = new Date(), dd = d.getDate(), mm = d.getMonth() + 1, yy = d.getFullYear();
+  return (dd < 10 ? '0' + dd : dd) + '/' + (mm < 10 ? '0' + mm : mm) + '/' + yy;
+}
+function warn(msg){ lastWarn = msg; try { alert(msg); } catch (e) {} }
+
+/* ================= persistencia ================= */
+function save(){
+  try { localStorage.setItem(LS_KEY, JSON.stringify(data)); } catch (e) {}
+}
+function load(){
+  try {
+    var d = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
+    if (d && Array.isArray(d.products)) data.products = d.products;
+    if (d && Array.isArray(d.history)) data.history = d.history;
+  } catch (e) {}
+}
+function findProd(id){
+  for (var i = 0; i < data.products.length; i++) if (data.products[i].id === id) return data.products[i];
+  return null;
+}
+function logHist(p, type, qty){
+  data.history.unshift({ ts: nowStr(), pid: p.id, name: p.name, type: type, qty: qty, stock: p.qty });
+  if (data.history.length > 300) data.history.length = 300;
+}
+function isLow(p){ return p.qty > 0 && p.qty <= p.min; }
+function isOut(p){ return p.qty <= 0; }
+
+/* ================= movimientos ================= */
+function applyMove(p, type, qty){
+  qty = Math.abs(pint(qty));
+  if (type === 'entrada'){
+    if (qty <= 0){ warn('Escribe la cantidad que ingresó.'); return false; }
+    p.qty += qty;
+    logHist(p, 'entrada', qty);
+  } else if (type === 'salida'){
+    if (qty <= 0){ warn('Escribe la cantidad que salió.'); return false; }
+    if (qty > p.qty){
+      var real = p.qty;
+      p.qty = 0;
+      logHist(p, 'salida', real);
+      warn('⚠️ Solo había ' + real + ' en stock. La salida se ajustó y el stock quedó en 0 (AGOTADO).');
+    } else {
+      p.qty -= qty;
+      logHist(p, 'salida', qty);
+    }
+  } else if (type === 'conteo'){
+    p.qty = Math.max(0, pint(qty));
+    logHist(p, 'conteo', p.qty);
+  }
+  save();
+  return true;
+}
+function quick(id, delta){
+  var p = findProd(id);
+  if (!p) return;
+  if (delta < 0){
+    if (p.qty <= 0){ warn('⚠️ «' + p.name + '» ya está AGOTADO.'); renderAll(); return; }
+    applyMove(p, 'salida', 1);
+  } else {
+    applyMove(p, 'entrada', 1);
+  }
+  renderAll();
+}
+function toggleMov(id){
+  openMov = (openMov === id) ? null : id;
+  renderList();
+}
+function applyMov(id){
+  var p = findProd(id);
+  if (!p) return;
+  var tipo = $('mov-tipo-' + id).value;
+  var cant = $('mov-cant-' + id).value;
+  if (tipo === 'conteo' && String(cant).trim() === ''){ warn('Escribe la cantidad contada.'); return; }
+  if (tipo !== 'conteo' && pint(cant) <= 0){ warn('Escribe una cantidad válida.'); return; }
+  if (applyMove(p, tipo, cant)) openMov = null;
+  renderAll();
+}
+function delProduct(id){
+  var p = findProd(id);
+  if (!p) return;
+  if (!confirm('¿Quitar «' + p.name + '» del inventario?')) return;
+  data.products = data.products.filter(function(x){ return x.id !== id; });
+  if (openMov === id) openMov = null;
+  save(); renderAll();
+}
+
+/* ================= agregar producto ================= */
+function addProduct(){
+  var name = $('pName').value.trim();
+  if (!name){ warn('Escribe el nombre del producto.'); $('pName').focus(); return false; }
+  if (String($('pQty').value).trim() === '' || pint($('pQty').value) < 0){ warn('Escribe la cantidad inicial.'); $('pQty').focus(); return false; }
+  var p = {
+    id: 'p' + Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36),
+    name: name,
+    qty: Math.max(0, pint($('pQty').value)),
+    um: UM_OPTS.indexOf($('pUm').value) >= 0 ? $('pUm').value : 'UN',
+    price: Math.max(0, pnum($('pPrice').value)),
+    min: String($('pMin').value).trim() === '' ? 3 : Math.max(0, pint($('pMin').value))
+  };
+  data.products.unshift(p);
+  logHist(p, 'alta', p.qty);
+  save();
+  $('pName').value = ''; $('pQty').value = ''; $('pPrice').value = ''; $('pMin').value = '3'; $('pUm').value = 'UN';
+  renderAll();
+  return true;
+}
+
+/* ================= render ================= */
+function summary(){
+  var units = 0, low = 0;
+  for (var i = 0; i < data.products.length; i++){
+    units += data.products[i].qty;
+    if (isLow(data.products[i]) || isOut(data.products[i])) low++;
+  }
+  return { prods: data.products.length, units: units, low: low };
+}
+function prodHTML(p){
+  var cls = isOut(p) ? 'prod out' : (isLow(p) ? 'prod low' : 'prod');
+  var badge = isOut(p) ? '<span class="badge badge-out">AGOTADO</span>'
+            : (isLow(p) ? '<span class="badge badge-low">¡Bajo stock!</span>' : '');
+  var info = esc(p.um) + (p.price > 0 ? ' · ' + fmt(p.price) : '') + ' · mínimo: ' + p.min;
+  var mov = '<div class="movpanel' + (openMov === p.id ? ' open' : '') + '" id="mov-' + p.id + '">' +
+    '<label style="margin-top:0;">Tipo de movimiento</label>' +
+    '<select id="mov-tipo-' + p.id + '">' +
+      '<option value="entrada">📥 Entrada (llegó mercadería)</option>' +
+      '<option value="salida">📤 Salida (venta / uso)</option>' +
+      '<option value="conteo">🧮 Conteo (poner la cantidad exacta)</option>' +
+    '</select>' +
+    '<label>Cantidad</label>' +
+    '<input type="number" id="mov-cant-' + p.id + '" min="0" step="1" inputmode="numeric" placeholder="Ej.: 5">' +
+    '<button class="applybtn" type="button" onclick="applyMov(\'' + p.id + '\')">✓ Aplicar movimiento</button></div>';
+  return '<div class="' + cls + '">' +
+    '<button class="del" type="button" onclick="delProduct(\'' + p.id + '\')" aria-label="Quitar">✕</button>' +
+    '<div class="pname">' + esc(p.name) + '</div>' +
+    '<div class="pinfo">' + info + '</div>' + badge +
+    '<div class="prow">' +
+      '<div class="stockbig">' + p.qty + '<small>EN STOCK</small></div>' +
+      '<button class="qbtn minus" type="button" onclick="quick(\'' + p.id + '\',-1)">−1 Venta</button>' +
+      '<button class="qbtn plus" type="button" onclick="quick(\'' + p.id + '\',1)">+1</button>' +
+    '</div>' +
+    '<button class="movbtn" type="button" onclick="toggleMov(\'' + p.id + '\')">↕ Movimiento (entrada / salida / conteo)</button>' +
+    mov + '</div>';
+}
+function renderList(){
+  var q = ($('q').value || '').trim().toLowerCase();
+  var list = data.products.filter(function(p){ return !q || p.name.toLowerCase().indexOf(q) >= 0; });
+  if (!data.products.length){
+    $('list').innerHTML = '<div class="empty">Todavía no hay productos.<br>Agrega el primero con el formulario de arriba. 👆</div>';
+  } else if (!list.length){
+    $('list').innerHTML = '<div class="empty">Ningún producto coincide con la búsqueda.</div>';
+  } else {
+    $('list').innerHTML = list.map(prodHTML).join('');
+  }
+}
+var HIST_LABEL = { alta: ['✚ Alta', 'ht-new'], entrada: ['📥 Entrada', 'ht-in'], salida: ['📤 Salida', 'ht-out'], conteo: ['🧮 Conteo', 'ht-set'] };
+function renderHist(){
+  if (!data.history.length){
+    $('hist').innerHTML = '<div class="empty">Sin movimientos todavía.</div>';
+    return;
+  }
+  var rows = '';
+  var items = data.history.slice(0, 30);
+  for (var i = 0; i < items.length; i++){
+    var h = items[i], lab = HIST_LABEL[h.type] || [h.type, ''];
+    var qtyTxt = h.type === 'conteo' ? 'stock puesto en ' + h.qty
+               : h.type === 'alta' ? 'inicio con ' + h.qty
+               : (h.type === 'entrada' ? '+' : '−') + h.qty;
+    rows += '<div class="hist"><span class="ht ' + lab[1] + '">' + lab[0] + '</span> · ' + esc(h.name) +
+      '<br><span class="hwhen">' + esc(h.ts) + '</span> · ' + qtyTxt + ' → quedan <b>' + h.stock + '</b></div>';
+  }
+  $('hist').innerHTML = rows;
+}
+function renderSummary(){
+  var s = summary();
+  $('sumProds').textContent = s.prods;
+  $('sumUnits').textContent = s.units;
+  $('sumLow').textContent = s.low;
+  $('sumLowBox').className = 'box' + (s.low > 0 ? ' alert' : '');
+}
+function renderAll(){ renderSummary(); renderList(); renderHist(); }
+
+/* ================= compartir / imprimir ================= */
+function shareText(){
+  var s = summary(), lines = [];
+  lines.push('*Inventario — Alequi Electric* (' + todayStr() + ')');
+  lines.push('Productos: ' + s.prods + ' · Unidades en stock: ' + s.units + ' · Bajo stock: ' + s.low);
+  lines.push('');
+  for (var i = 0; i < data.products.length; i++){
+    var p = data.products[i];
+    var mark = isOut(p) ? ' ⛔ AGOTADO' : (isLow(p) ? ' ⚠️ ¡Bajo stock!' : '');
+    lines.push('• ' + p.name + ' (' + p.um + '): *' + p.qty + '*' + mark);
+  }
+  return lines.join('\n');
+}
+function shareWA(){
+  if (!data.products.length){ warn('Todavía no hay productos en el inventario.'); return; }
+  window.open('https://wa.me/' + STORE_WA + '?text=' + encodeURIComponent(shareText()), '_blank');
+}
+function buildDoc(){
+  $('dDate').textContent = 'Fecha: ' + todayStr();
+  var sorted = data.products.slice().sort(function(a, b){ return a.name.localeCompare(b.name, 'es'); });
+  var rows = '';
+  for (var i = 0; i < sorted.length; i++){
+    var p = sorted[i];
+    var st = isOut(p) ? '0 — AGOTADO' : String(p.qty) + (isLow(p) ? ' — ¡Bajo stock!' : '');
+    rows += '<tr><td class="c">' + (i + 1) + '</td><td>' + esc(p.name) + '</td>' +
+      '<td class="c">' + esc(p.um) + '</td><td class="r"><b>' + st + '</b></td></tr>';
+  }
+  if (!rows) rows = '<tr><td colspan="4" class="c">Sin productos</td></tr>';
+  $('dBody').innerHTML = rows;
+}
+function printList(){
+  if (!data.products.length){ warn('Todavía no hay productos en el inventario.'); return; }
+  buildDoc();
+  window.print();
+}
+
+/* ================= init ================= */
+load();
+renderAll();
+$('addBtn').addEventListener('click', addProduct);
+$('q').addEventListener('input', renderList);
+$('waBtn').addEventListener('click', shareWA);
+$('printBtn').addEventListener('click', printList);
+window.addEventListener('beforeprint', buildDoc);
+</script>
+</body>
+</html>
