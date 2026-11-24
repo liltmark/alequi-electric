@@ -61,6 +61,23 @@
   .movpanel.open{ display:block; }
   .applybtn{ width:100%; margin-top:9px; padding:12px; font-size:15px; font-weight:800; border:none; border-radius:10px;
     background:var(--navy); color:#fff; cursor:pointer; }
+  .editbtn{ width:100%; margin-top:8px; padding:10px; font-size:14px; font-weight:700; border:1.5px solid var(--line);
+    border-radius:10px; background:#FBFCFE; color:var(--mut); cursor:pointer; }
+  .editpanel{ display:none; margin-top:10px; border-top:1.5px dashed var(--line); padding-top:10px; }
+  .editpanel.open{ display:block; }
+  .prod.flash{ outline:3px solid var(--orange); outline-offset:2px; }
+  /* ---------- escáner de códigos ---------- */
+  .scanrow{ display:flex; gap:8px; }
+  .scanrow input{ flex:1; }
+  .scanbtn{ flex:none; padding:0 14px; font-size:15px; font-weight:800; border:none; border-radius:10px;
+    background:var(--navy); color:#fff; cursor:pointer; }
+  .scanner{ display:none; position:fixed; inset:0; z-index:60; background:rgba(5,18,32,.97); color:#fff;
+    flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:18px; text-align:center; }
+  .scanner.open{ display:flex; }
+  .scanner video{ width:100%; max-width:520px; border-radius:14px; background:#000; }
+  .scanner p{ font-size:15.5px; line-height:1.5; }
+  .scanner button{ padding:13px 26px; font-size:16px; font-weight:800; border:none; border-radius:12px;
+    background:var(--orange); color:#fff; cursor:pointer; }
   .empty{ text-align:center; color:var(--mut); font-size:14.5px; padding:18px 8px; line-height:1.55; }
   /* ---------- history ---------- */
   .hist{ border-bottom:1px solid var(--line); padding:8px 2px; font-size:13.5px; line-height:1.45; }
@@ -124,6 +141,8 @@
     <h2>➕ Agregar producto</h2>
     <label>Nombre / Descripción <span class="req">*</span></label>
     <input type="text" id="pName" placeholder="Ej.: Cable THW-90 12 AWG x 100 m" autocomplete="off">
+    <label>Código de barras (opcional)</label>
+    <input type="text" id="pCode" placeholder="Ej.: 7750250001234 — escríbelo o escanéalo luego con 📷" autocomplete="off">
     <div class="row2">
       <div>
         <label>Cantidad inicial <span class="req">*</span></label>
@@ -156,7 +175,12 @@
 
   <div class="card">
     <h2>📦 Mi inventario</h2>
-    <input type="search" id="q" placeholder="🔍 Buscar producto…" autocomplete="off">
+    <div class="scanrow">
+      <input type="search" id="q" placeholder="🔍 Buscar por nombre o código…" autocomplete="off">
+      <button class="scanbtn" id="scanBtn" type="button">📷 Escanear código</button>
+    </div>
+    <p class="hint" style="text-align:left; margin-top:8px;">📷 Escanea el código con la cámara para vender más rápido.
+    Con una <b>pistola escáner</b> (USB o Bluetooth) el código se escribe solo en el buscador, sin configurar nada.</p>
     <div id="list" style="margin-top:12px;"></div>
   </div>
 
@@ -171,6 +195,13 @@
   </div>
   <p class="hint">Todo se guarda automáticamente en este teléfono.<br>
   Cuando un producto llega al stock mínimo se marca con <b>¡Bajo stock!</b> y en cero con <b>AGOTADO</b>.</p>
+</div>
+
+<!-- ================= ESCÁNER (cámara) ================= -->
+<div id="scanner" class="scanner">
+  <p><b>📷 Escanear código</b><br>Apunta la cámara al código de barras del producto…</p>
+  <video id="scanVideo" playsinline muted></video>
+  <button id="scanCancel" type="button">✕ Cancelar</button>
 </div>
 
 <!-- ================= PRINT DOCUMENT ================= -->
@@ -210,6 +241,7 @@ var STORE_WA = '51993893918';
 var UM_OPTS = ['UN','ROLLO','CAJA','MT','SET','GLB'];
 var data = { products: [], history: [] };
 var openMov = null;   /* id del producto con el panel de movimiento abierto */
+var openEdit = null;  /* id del producto con el panel de edición abierto */
 var lastWarn = '';    /* último aviso (para pruebas y mensajes) */
 
 function $(id){ return document.getElementById(id); }
@@ -243,6 +275,10 @@ function load(){
     var d = JSON.parse(localStorage.getItem(LS_KEY) || 'null');
     if (d && Array.isArray(d.products)) data.products = d.products;
     if (d && Array.isArray(d.history)) data.history = d.history;
+    /* productos guardados por versiones anteriores no tienen «code» */
+    for (var i = 0; i < data.products.length; i++){
+      if (typeof data.products[i].code !== 'string') data.products[i].code = '';
+    }
   } catch (e) {}
 }
 function findProd(id){
@@ -312,6 +348,22 @@ function delProduct(id){
   if (!confirm('¿Quitar «' + p.name + '» del inventario?')) return;
   data.products = data.products.filter(function(x){ return x.id !== id; });
   if (openMov === id) openMov = null;
+  if (openEdit === id) openEdit = null;
+  save(); renderAll();
+}
+function toggleEdit(id){
+  openEdit = (openEdit === id) ? null : id;
+  renderList();
+}
+function saveEdit(id){
+  var p = findProd(id);
+  if (!p) return;
+  var name = $('ed-name-' + id).value.trim();
+  if (!name){ warn('El nombre no puede quedar vacío.'); return; }
+  p.name = name;
+  p.code = $('ed-code-' + id).value.trim();
+  p.min = Math.max(0, pint($('ed-min-' + id).value));
+  openEdit = null;
   save(); renderAll();
 }
 
@@ -323,6 +375,7 @@ function addProduct(){
   var p = {
     id: 'p' + Date.now().toString(36) + Math.floor(Math.random() * 1e6).toString(36),
     name: name,
+    code: $('pCode').value.trim(),
     qty: Math.max(0, pint($('pQty').value)),
     um: UM_OPTS.indexOf($('pUm').value) >= 0 ? $('pUm').value : 'UN',
     price: Math.max(0, pnum($('pPrice').value)),
@@ -331,7 +384,7 @@ function addProduct(){
   data.products.unshift(p);
   logHist(p, 'alta', p.qty);
   save();
-  $('pName').value = ''; $('pQty').value = ''; $('pPrice').value = ''; $('pMin').value = '3'; $('pUm').value = 'UN';
+  $('pName').value = ''; $('pCode').value = ''; $('pQty').value = ''; $('pPrice').value = ''; $('pMin').value = '3'; $('pUm').value = 'UN';
   renderAll();
   return true;
 }
@@ -349,7 +402,8 @@ function prodHTML(p){
   var cls = isOut(p) ? 'prod out' : (isLow(p) ? 'prod low' : 'prod');
   var badge = isOut(p) ? '<span class="badge badge-out">AGOTADO</span>'
             : (isLow(p) ? '<span class="badge badge-low">¡Bajo stock!</span>' : '');
-  var info = esc(p.um) + (p.price > 0 ? ' · ' + fmt(p.price) : '') + ' · mínimo: ' + p.min;
+  var info = esc(p.um) + (p.price > 0 ? ' · ' + fmt(p.price) : '') + ' · mínimo: ' + p.min +
+    (p.code ? '<br>🏷️ Código: ' + esc(p.code) : '');
   var mov = '<div class="movpanel' + (openMov === p.id ? ' open' : '') + '" id="mov-' + p.id + '">' +
     '<label style="margin-top:0;">Tipo de movimiento</label>' +
     '<select id="mov-tipo-' + p.id + '">' +
@@ -360,7 +414,15 @@ function prodHTML(p){
     '<label>Cantidad</label>' +
     '<input type="number" id="mov-cant-' + p.id + '" min="0" step="1" inputmode="numeric" placeholder="Ej.: 5">' +
     '<button class="applybtn" type="button" onclick="applyMov(\'' + p.id + '\')">✓ Aplicar movimiento</button></div>';
-  return '<div class="' + cls + '">' +
+  var edp = '<div class="editpanel' + (openEdit === p.id ? ' open' : '') + '" id="edit-' + p.id + '">' +
+    '<label style="margin-top:0;">Nombre</label>' +
+    '<input type="text" id="ed-name-' + p.id + '" value="' + esc(p.name) + '" autocomplete="off">' +
+    '<label>Código de barras</label>' +
+    '<input type="text" id="ed-code-' + p.id + '" value="' + esc(p.code || '') + '" placeholder="Sin código" autocomplete="off">' +
+    '<label>Stock mínimo (aviso)</label>' +
+    '<input type="number" id="ed-min-' + p.id + '" min="0" step="1" inputmode="numeric" value="' + p.min + '">' +
+    '<button class="applybtn" type="button" onclick="saveEdit(\'' + p.id + '\')">💾 Guardar cambios</button></div>';
+  return '<div class="' + cls + '" data-pid="' + p.id + '">' +
     '<button class="del" type="button" onclick="delProduct(\'' + p.id + '\')" aria-label="Quitar">✕</button>' +
     '<div class="pname">' + esc(p.name) + '</div>' +
     '<div class="pinfo">' + info + '</div>' + badge +
@@ -370,11 +432,19 @@ function prodHTML(p){
       '<button class="qbtn plus" type="button" onclick="quick(\'' + p.id + '\',1)">+1</button>' +
     '</div>' +
     '<button class="movbtn" type="button" onclick="toggleMov(\'' + p.id + '\')">↕ Movimiento (entrada / salida / conteo)</button>' +
-    mov + '</div>';
+    mov +
+    '<button class="editbtn" type="button" onclick="toggleEdit(\'' + p.id + '\')">✏️ Editar (nombre, código, mínimo)</button>' +
+    edp + '</div>';
+}
+function matchesQ(p, q){
+  if (!q) return true;
+  if (p.name.toLowerCase().indexOf(q) >= 0) return true;
+  var c = (p.code || '').toLowerCase();
+  return c !== '' && c.indexOf(q) === 0;   /* código: coincidencia exacta o por el inicio */
 }
 function renderList(){
   var q = ($('q').value || '').trim().toLowerCase();
-  var list = data.products.filter(function(p){ return !q || p.name.toLowerCase().indexOf(q) >= 0; });
+  var list = data.products.filter(function(p){ return matchesQ(p, q); });
   if (!data.products.length){
     $('list').innerHTML = '<div class="empty">Todavía no hay productos.<br>Agrega el primero con el formulario de arriba. 👆</div>';
   } else if (!list.length){
@@ -446,6 +516,98 @@ function printList(){
   window.print();
 }
 
+/* ================= escáner de códigos ================= */
+function findByCode(code){
+  code = String(code == null ? '' : code).trim();
+  if (!code) return null;
+  for (var i = 0; i < data.products.length; i++){
+    if ((data.products[i].code || '') === code) return data.products[i];
+  }
+  return null;
+}
+/* Qué hacer con un código leído (cámara o pistola): si el producto existe,
+   lo deja listo para registrar la venta; si no, prepara el formulario de alta. */
+function handleScannedCode(raw){
+  var code = String(raw == null ? '' : raw).trim();
+  if (!code) return null;
+  var p = findByCode(code);
+  if (p){
+    $('q').value = '';
+    openMov = p.id;
+    renderAll();
+    var el = document.querySelector('[data-pid="' + p.id + '"]');
+    if (el){
+      el.classList.add('flash');
+      if (el.scrollIntoView) el.scrollIntoView({ block: 'center' });
+    }
+    return p;
+  }
+  $('pCode').value = code;
+  if ($('pName').scrollIntoView) $('pName').scrollIntoView({ block: 'center' });
+  $('pName').focus();
+  warn('Este código (' + code + ') todavía no está en el inventario. Ya quedó escrito en «Código de barras» del formulario de arriba: completa el nombre y la cantidad y toca «Agregar al inventario».');
+  return null;
+}
+var scanStream = null, scanRAF = null, scanning = false;
+function stopScan(){
+  scanning = false;
+  if (scanRAF) cancelAnimationFrame(scanRAF);
+  scanRAF = null;
+  if (scanStream){
+    scanStream.getTracks().forEach(function(t){ t.stop(); });
+    scanStream = null;
+  }
+  var v = $('scanVideo');
+  if (v) v.srcObject = null;
+  $('scanner').className = 'scanner';
+}
+function startScan(){
+  var noCam = 'Tu teléfono no puede escanear con la cámara desde esta página, pero no te preocupes: ' +
+    'escribe el código en el buscador 🔍 y el producto aparece al instante. ' +
+    'Y si compras una pistola escáner (USB o Bluetooth), ella sola escribe el código en el buscador, sin configurar nada.';
+  if (!('BarcodeDetector' in window) || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    warn(noCam);
+    return;
+  }
+  var detector = null;
+  try {
+    detector = new BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'qr_code'] });
+  } catch (e1) {
+    try { detector = new BarcodeDetector(); } catch (e2) { warn(noCam); return; }
+  }
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+    .then(function(stream){
+      scanStream = stream;
+      scanning = true;
+      var v = $('scanVideo');
+      v.srcObject = stream;
+      $('scanner').className = 'scanner open';
+      return v.play();
+    })
+    .then(function(){
+      var tick = function(){
+        if (!scanning) return;
+        detector.detect($('scanVideo')).then(function(codes){
+          if (!scanning) return;
+          if (codes && codes.length && codes[0].rawValue){
+            var val = codes[0].rawValue;
+            stopScan();
+            handleScannedCode(val);
+            return;
+          }
+          scanRAF = requestAnimationFrame(tick);
+        }).catch(function(){
+          if (scanning) scanRAF = requestAnimationFrame(tick);
+        });
+      };
+      tick();
+    })
+    .catch(function(){
+      stopScan();
+      warn('No se pudo abrir la cámara. Escribe el código en el buscador 🔍 y el producto aparece al instante.');
+    });
+}
+
 /* ================= init ================= */
 load();
 renderAll();
@@ -453,6 +615,8 @@ $('addBtn').addEventListener('click', addProduct);
 $('q').addEventListener('input', renderList);
 $('waBtn').addEventListener('click', shareWA);
 $('printBtn').addEventListener('click', printList);
+$('scanBtn').addEventListener('click', startScan);
+$('scanCancel').addEventListener('click', stopScan);
 window.addEventListener('beforeprint', buildDoc);
 </script>
 </body>
