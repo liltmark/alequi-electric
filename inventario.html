@@ -138,14 +138,14 @@
   </div>
 
   <div class="card">
-    <h2>➕ Agregar producto</h2>
+    <h2>➕ Agregar producto nuevo</h2>
     <label>Nombre / Descripción <span class="req">*</span></label>
     <input type="text" id="pName" placeholder="Ej.: Cable THW-90 12 AWG x 100 m" autocomplete="off">
     <label>Código de barras (opcional)</label>
     <input type="text" id="pCode" placeholder="Ej.: 7750250001234 — escríbelo o escanéalo luego con 📷" autocomplete="off">
     <div class="row2">
       <div>
-        <label>Cantidad inicial <span class="req">*</span></label>
+        <label style="font-size:15px;">¿Cuántas unidades tienes ahora? (stock inicial) <span class="req">*</span></label>
         <input type="number" id="pQty" min="0" step="1" inputmode="numeric" placeholder="Ej.: 20">
       </div>
       <div>
@@ -175,6 +175,7 @@
 
   <div class="card">
     <h2>📦 Mi inventario</h2>
+    <p class="hint" style="text-align:left; margin:0 0 10px; font-size:14.5px;">Para sumar stock: toca <b>«📥 + Stock»</b> en el producto. Para vender: <b>«−1 Venta»</b>.</p>
     <div class="scanrow">
       <input type="search" id="q" placeholder="🔍 Buscar por nombre o código…" autocomplete="off">
       <button class="scanbtn" id="scanBtn" type="button">📷 Escanear código</button>
@@ -332,6 +333,16 @@ function toggleMov(id){
   openMov = (openMov === id) ? null : id;
   renderList();
 }
+/* Botón grande «📥 + Stock»: abre el panel de movimiento ya puesto en
+   Entrada y con el cursor en la cantidad, listo para escribir y Aplicar. */
+function openStock(id){
+  openMov = id;
+  renderList();
+  var sel = $('mov-tipo-' + id);
+  if (sel) sel.value = 'entrada';
+  var cant = $('mov-cant-' + id);
+  if (cant) cant.focus();
+}
 function applyMov(id){
   var p = findProd(id);
   if (!p) return;
@@ -429,7 +440,7 @@ function prodHTML(p){
     '<div class="prow">' +
       '<div class="stockbig">' + p.qty + '<small>EN STOCK</small></div>' +
       '<button class="qbtn minus" type="button" onclick="quick(\'' + p.id + '\',-1)">−1 Venta</button>' +
-      '<button class="qbtn plus" type="button" onclick="quick(\'' + p.id + '\',1)">+1</button>' +
+      '<button class="qbtn plus" type="button" onclick="openStock(\'' + p.id + '\')">📥 + Stock</button>' +
     '</div>' +
     '<button class="movbtn" type="button" onclick="toggleMov(\'' + p.id + '\')">↕ Movimiento (entrada / salida / conteo)</button>' +
     mov +
